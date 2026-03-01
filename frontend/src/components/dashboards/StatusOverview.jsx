@@ -26,9 +26,9 @@ const StatusOverview = ({ stats }) => {
     const totalCount = backlogCount + inProgressCount + reviewCount + doneCount;
 
     // Fallback: if total is 0 but we have sprint data, calculate from sprint
-    const displayDoneCount = totalCount === 0 && stats.issuesDone ? stats.issuesDone : doneCount;
-    const displayTotalCount = totalCount === 0 && stats.issuesDone ? stats.issuesDone : totalCount;
-    const completionRate = displayTotalCount > 0 ? Math.round((displayDoneCount / displayTotalCount) * 100) : 0;
+    const displayTotalCount = totalCount > 0 ? totalCount : (stats.totalTasks || 0);
+    const displayDoneCount = totalCount > 0 ? doneCount : (stats.issuesDone || 0);
+    const completionRate = displayTotalCount > 0 ? Math.round((displayDoneCount / displayTotalCount) * 100) : (stats.sprintProgress || 0);
 
     // Status breakdown with color coding
     const statusRows = [

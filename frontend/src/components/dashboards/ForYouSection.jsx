@@ -1,5 +1,6 @@
 import { Card, List, Tag, Typography, Row, Col, Button, Empty } from 'antd';
 import { FireOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 
 const { Text, Title } = Typography;
 
@@ -100,7 +101,13 @@ const ForYouSection = ({ assignedIssues }) => {
                             ))}
                         </div>
                     ) : (
-                        <Empty description="No tasks assigned" size="small" style={{ padding: '16px 0' }} />
+                        <Empty
+                            description={
+                                <span>You're all caught up! Check the <Link to="/dashboard/backlog">Backlog</Link> for new work.</span>
+                            }
+                            size="small"
+                            style={{ padding: '16px 0' }}
+                        />
                     )}
                 </Card>
             </Col>

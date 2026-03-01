@@ -210,53 +210,39 @@ const Header = ({ onMenuClick }) => {
                 }}
             >
                 {/* Left: Logo & Nav */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 24 }}>
-                    {isMobile && (
-                        <Button
-                            type="text"
-                            icon={<MenuOutlined />}
-                            onClick={onMenuClick}
-                            style={{ fontSize: 18 }}
-                        />
-                    )}
+                <div className="flex items-center gap-3 md:gap-6">
+                    <Button
+                        type="text"
+                        icon={<MenuOutlined />}
+                        onClick={onMenuClick}
+                        className="flex md:hidden"
+                        style={{ fontSize: 18 }}
+                    />
 
                     <div
                         style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
                         onClick={() => navigate('/dashboard')}
                     >
                         <AppstoreOutlined style={{ fontSize: 24, color: '#0052CC' }} />
-                        {!isMobile && <Text strong style={{ fontSize: 18, color: '#172B4D' }}>Digital Dockers</Text>}
+                        <Text strong className="hidden md:block" style={{ fontSize: 18, color: '#172B4D' }}>Digital Dockers</Text>
                     </div>
 
-                    {!isMobile && (
-                        <Space size="middle">
-                            <Dropdown menu={{ items: projectMenu }} trigger={['click']}>
-                                <Button type="text">
-                                    {currentProject?.name || 'Projects'} <DownOutlined style={{ fontSize: 10 }} />
-                                </Button>
-                            </Dropdown>
-                            {screens.lg && (
-                                <>
-                                    <Button type="text" onClick={() => navigate('/dashboard/backlog')}>Backlog</Button>
-                                    <Button type="text" onClick={() => navigate('/dashboard/tasks')}>Board</Button>
-                                    <Button type="text" onClick={() => navigate('/dashboard/spaces')}>📝 Spaces</Button>
-                                    <Button type="text" onClick={() => navigate('/dashboard/organization')}>People</Button>
-                                </>
-                            )}
-                            {canCreate && (
-                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)}>
-                                    Create
-                                </Button>
-                            )}
-                        </Space>
-                    )}
+                    <Space size="middle" className="hidden md:flex">
+                        <Dropdown menu={{ items: projectMenu }} trigger={['click']}>
+                            <Button type="text">
+                                {currentProject?.name || 'Projects'} <DownOutlined style={{ fontSize: 10 }} />
+                            </Button>
+                        </Dropdown>
+                        <Button type="text" className="hidden lg:inline-flex" onClick={() => navigate('/dashboard/spaces')}>📝 Spaces</Button>
+                        <Button type="text" className="hidden lg:inline-flex" onClick={() => navigate('/dashboard/organization')}>People</Button>
+                    </Space>
                 </div>
 
                 {/* Right: Search & Profile */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 16 }}>
-                    {isMobile ? (
-                        <Button type="text" icon={<SearchOutlined />} />
-                    ) : (
+                <div className="flex items-center gap-2 md:gap-4">
+                    <Button type="text" icon={<SearchOutlined />} className="flex md:hidden" />
+
+                    <div className="hidden md:block">
                         <Dropdown
                             popupRender={() => searchDropdownContent}
                             trigger={['click']}
@@ -266,32 +252,36 @@ const Header = ({ onMenuClick }) => {
                             <Input
                                 placeholder="Search issues and projects"
                                 prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
-                                style={{ width: screens.lg ? 240 : 180, borderRadius: 4 }}
+                                className="w-[180px] lg:w-[240px] rounded"
                                 value={searchQuery}
                                 onChange={handleSearchChange}
                                 onFocus={() => setSearchOpen(true)}
                                 allowClear
                             />
                         </Dropdown>
-                    )}
+                    </div>
 
-                    <Space size={isMobile ? 'small' : 'large'}>
-                        {!isMobile && (
-                            <>
-                                <HeaderCalendarDropdown />
-                                <NotificationsDropdown />
-                                <QuestionCircleOutlined
-                                    style={{ fontSize: 20, cursor: 'pointer', color: '#6B778C' }}
-                                    onClick={() => window.open('https://support.atlassian.com/jira-software-cloud/', '_blank')}
-                                />
-                            </>
-                        )}
+                    <Space className="gap-2 md:gap-6">
+                        <div className="hidden md:flex items-center gap-6">
+                            <HeaderCalendarDropdown />
+                            <NotificationsDropdown />
+                            <QuestionCircleOutlined
+                                style={{ fontSize: 20, cursor: 'pointer', color: '#6B778C' }}
+                                onClick={() => window.open('https://support.atlassian.com/jira-software-cloud/', '_blank')}
+                            />
+                        </div>
 
                         <Dropdown menu={{ items: userMenu }} trigger={['click']} placement="bottomRight">
                             <Avatar style={{ backgroundColor: '#0052CC', cursor: 'pointer' }} icon={<UserOutlined />}>
                                 {user?.fullName?.[0]}
                             </Avatar>
                         </Dropdown>
+
+                        {canCreate && (
+                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)} className="hidden md:flex bg-[#0052CC]">
+                                Create
+                            </Button>
+                        )}
                     </Space>
                 </div>
             </AntHeader>

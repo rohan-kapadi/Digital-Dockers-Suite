@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Typography, Empty, Spin, Tag, Space, Alert, Tooltip, Statistic } from 'antd';
-import { RiseOutlined, FallOutlined, CheckCircleOutlined, WarningOutlined } from '@ant-design/icons';
+import { RiseOutlined, FallOutlined, CheckCircleOutlined, WarningOutlined, LineChartOutlined } from '@ant-design/icons';
 import { Line } from 'react-chartjs-2';
 import axios from 'axios';
 
@@ -214,11 +214,11 @@ const SprintBurndownChart = ({ sprintId, sprintName = 'Current Sprint' }) => {
   return (
     <div>
       {/* Header with Status */}
-      <Card 
+      <Card
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>📈 Sprint Burndown</span>
-            <Tag 
+            <Tag
               color={health === 'healthy' ? 'green' : 'red'}
               style={{ marginLeft: 12, padding: '4px 12px', fontSize: 12, fontWeight: 500 }}
             >
@@ -263,7 +263,7 @@ const SprintBurndownChart = ({ sprintId, sprintName = 'Current Sprint' }) => {
             <div>
               <Text type="secondary" style={{ fontSize: 12 }}>Sprint Progress</Text>
               <Title level={4} style={{ margin: '8px 0 0 0', color: '#0052cc' }}>
-                {currentDay}/{sprintDays} days
+                {currentDay != null && sprintDays != null ? `${currentDay}/${sprintDays} days` : '0 days'}
               </Title>
             </div>
           </Col>
@@ -325,9 +325,17 @@ const SprintBurndownChart = ({ sprintId, sprintName = 'Current Sprint' }) => {
                 </Space>
               </div>
             ) : (
-              <div style={{ padding: '12px', backgroundColor: '#f5f5f5', borderRadius: 6 }}>
-                <Text type="secondary" style={{ fontSize: 12 }}>Forecast unavailable</Text>
-              </div>
+              <Tooltip title="Requires at least 2 completed sprints to forecast">
+                <div style={{ padding: '12px', backgroundColor: '#f5f5f5', borderRadius: 6, minHeight: 74 }}>
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <Text strong style={{ fontSize: 12 }}>Forecast</Text>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                      <LineChartOutlined style={{ fontSize: 16, color: '#bfbfbf' }} />
+                      <div style={{ height: 1, borderTop: '2px dotted #d9d9d9', width: '100%' }}></div>
+                    </div>
+                  </Space>
+                </div>
+              </Tooltip>
             )}
           </Col>
 

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Card, Button, Select, Table, Tag, Avatar, Space, Empty, message, Typography, Row, Col, Divider } from 'antd';
-import { PlusOutlined, BugOutlined, CheckCircleOutlined, FileTextOutlined } from '@ant-design/icons';
+import { Card, Button, Select, Table, Tag, Avatar, Space, Empty, message, Typography, Row, Col, Divider, Input } from 'antd';
+import { PlusOutlined, BugOutlined, CheckCircleOutlined, FileTextOutlined, HolderOutlined, SearchOutlined } from '@ant-design/icons';
 import { useProject } from '../../context/ProjectContext';
 import taskService from '../../services/taskService';
 import CreateIssueModal from '../tasks/CreateIssueModal';
@@ -32,6 +32,24 @@ const BacklogPage = () => {
     const [sprintIssues, setSprintIssues] = useState([]);
     const [loading, setLoading] = useState(false);
     const [createModalOpen, setCreateModalOpen] = useState(false);
+
+    const [searchText, setSearchText] = useState('');
+    const [assigneeFilter, setAssigneeFilter] = useState(null);
+    const [epicFilter, setEpicFilter] = useState(null);
+
+    const filteredBacklogIssues = useMemo(() => {
+        return backlogIssues.filter(issue => {
+            const matchesSearch = !searchText || issue.title?.toLowerCase().includes(searchText.toLowerCase()) || issue.key?.toLowerCase().includes(searchText.toLowerCase());
+            return matchesSearch;
+        });
+    }, [backlogIssues, searchText, assigneeFilter, epicFilter]);
+
+    const filteredSprintIssues = useMemo(() => {
+        return sprintIssues.filter(issue => {
+            const matchesSearch = !searchText || issue.title?.toLowerCase().includes(searchText.toLowerCase()) || issue.key?.toLowerCase().includes(searchText.toLowerCase());
+            return matchesSearch;
+        });
+    }, [sprintIssues, searchText, assigneeFilter, epicFilter]);
 
     // Load issues on mount or when project/sprint changes
     useEffect(() => {
@@ -102,79 +120,101 @@ const BacklogPage = () => {
         }
     };
 
-    const IssueRow = ({ issue, index, isDragging }) => (
-        <Draggable draggableId={issue._id} index={index}>
-            {(provided, snapshot) => (
-                <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    className={`issue-row ${snapshot.isDragging ? 'dragging' : ''}`}
-                    style={{
-                        ...provided.draggableProps.style,
-                        backgroundColor: snapshot.isDragging ? '#f0f2f5' : 'transparent',
-                        padding: '12px',
-                        borderRadius: '4px',
-                        marginBottom: '8px',
-                        border: '1px solid #e8e8e8',
-                        cursor: 'grab'
-                    }}
-                >
-                    <Row align="middle" gutter={[16, 0]} style={{ width: '100%' }}>
-                        {/* Type Icon */}
-                        <Col span={2} style={{ textAlign: 'center' }}>
-                            {ISSUE_TYPE_ICONS[issue.issueType] || ISSUE_TYPE_ICONS.task}
-                        </Col>
+    const IssueRow = ({ issue, index, isDragging }) => {
+        const isCompleted = ['done', 'completed'].includes((issue.status || issue.issueStatus || '').toLowerCase());
 
-                        {/* Key */}
-                        <Col span={3}>
-                            <Text strong style={{ fontSize: 12, color: '#0052cc' }}>
-                                {issue.key || `ISSUE-${issue._id?.slice(-4).toUpperCase()}`}
-                            </Text>
-                        </Col>
+        return (
+            <Draggable draggableId={issue._id} index={index}>
+                {(provided, snapshot) => (
+                    <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={`issue-row ${snapshot.isDragging ? 'dragging' : ''} ${isCompleted ? 'opacity-60 line-through' : ''}`}
+                        style={{
+                            ...provided.draggableProps.style,
+                            backgroundColor: snapshot.isDragging ? '#f0f2f5' : 'transparent',
+                            padding: '12px',
+                            borderRadius: '4px',
+                            marginBottom: '8px',
+                            border: '1px solid #e8e8e8',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
+                    >
+                        <div {...provided.dragHandleProps} style={{ cursor: 'grab', padding: '0 4px', color: '#bfbfbf' }}>
+                            <HolderOutlined />
+                        </div>
+                        <div className="flex flex-col md:flex-row md:items-center w-full gap-2 md:gap-4 overflow-hidden py-1">
+                            {/* Mobile Top Row: ID, Icon, Priority */}
+                            <div className="flex items-center justify-between md:hidden w-full">
+                                <div className="flex items-center gap-2">
+                                    {ISSUE_TYPE_ICONS[issue.issueType?.toLowerCase()] || ISSUE_TYPE_ICONS.task}
+                                    <Text strong style={{ fontSize: 12, color: '#0052cc' }}>
+                                        {issue.key || `ISSUE-${issue._id?.slice(-4).toUpperCase()}`}
+                                    </Text>
+                                </div>
+                                {issue.priority && (
+                                    <Tag
+                                        color={PRIORITY_COLORS[issue.priority?.toLowerCase()] || '#666'}
+                                        style={{ fontSize: 11, margin: 0 }}
+                                    >
+                                        {issue.priority.charAt(0).toUpperCase() + issue.priority.slice(1).toLowerCase()}
+                                    </Tag>
+                                )}
+                            </div>
 
-                        {/* Title */}
-                        <Col span={12}>
-                            <Text ellipsis style={{ fontSize: 13 }}>
-                                {issue.title}
-                            </Text>
-                        </Col>
+                            {/* Desktop Left: Icon, ID */}
+                            <div className="hidden md:flex items-center gap-3 w-32 shrink-0">
+                                {ISSUE_TYPE_ICONS[issue.issueType?.toLowerCase()] || ISSUE_TYPE_ICONS.task}
+                                <Text strong style={{ fontSize: 12, color: '#0052cc' }}>
+                                    {issue.key || `ISSUE-${issue._id?.slice(-4).toUpperCase()}`}
+                                </Text>
+                            </div>
 
-                        {/* Priority */}
-                        <Col span={3}>
-                            {issue.priority && (
-                                <Tag
-                                    color={PRIORITY_COLORS[issue.priority] || '#666'}
-                                    style={{ fontSize: 11, margin: 0 }}
-                                >
-                                    {issue.priority}
-                                </Tag>
-                            )}
-                        </Col>
+                            {/* Middle: Title */}
+                            <div className="min-w-0 flex-1">
+                                <div className="truncate w-full" style={{ fontSize: 13 }} title={issue.title}>
+                                    {issue.title}
+                                </div>
+                            </div>
 
-                        {/* Assignee */}
-                        <Col span={4} style={{ textAlign: 'right' }}>
-                            {issue.assignedTo && issue.assignedTo.length > 0 ? (
-                                <Avatar.Group maxCount={2} size="small">
-                                    {issue.assignedTo.map(assignee => (
-                                        <Avatar
-                                            key={assignee._id}
-                                            size="small"
-                                            title={assignee.fullName || assignee.name}
-                                        >
-                                            {(assignee.fullName || assignee.name)?.[0]?.toUpperCase()}
-                                        </Avatar>
-                                    ))}
-                                </Avatar.Group>
-                            ) : (
-                                <Text type="secondary" style={{ fontSize: 12 }}>Unassigned</Text>
-                            )}
-                        </Col>
-                    </Row>
-                </div>
-            )}
-        </Draggable>
-    );
+                            {/* Desktop Right: Priority */}
+                            <div className="hidden md:block w-24 shrink-0">
+                                {issue.priority && (
+                                    <Tag
+                                        color={PRIORITY_COLORS[issue.priority?.toLowerCase()] || '#666'}
+                                        style={{ fontSize: 11, margin: 0 }}
+                                    >
+                                        {issue.priority.charAt(0).toUpperCase() + issue.priority.slice(1).toLowerCase()}
+                                    </Tag>
+                                )}
+                            </div>
+
+                            {/* Right / Bottom Assignee */}
+                            <div className="flex justify-start md:justify-end w-full md:w-32 shrink-0 border-t md:border-0 border-gray-100 pt-2 md:pt-0 mt-1 md:mt-0">
+                                {issue.assignedTo && issue.assignedTo.length > 0 ? (
+                                    <Avatar.Group maxCount={2} size="small">
+                                        {issue.assignedTo.map(assignee => (
+                                            <Avatar
+                                                key={assignee._id}
+                                                size="small"
+                                                title={assignee.fullName || assignee.name}
+                                            >
+                                                {(assignee.fullName || assignee.name)?.[0]?.toUpperCase()}
+                                            </Avatar>
+                                        ))}
+                                    </Avatar.Group>
+                                ) : (
+                                    <Text type="secondary" style={{ fontSize: 12 }}>Unassigned</Text>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </Draggable>
+        );
+    };
 
     if (!currentProject) {
         return <Empty description="Select a Project" />;
@@ -213,6 +253,27 @@ const BacklogPage = () => {
                 }}
             />
 
+            {/* Filters */}
+            <div className="mb-6">
+                <div className="flex flex-col md:flex-row gap-3">
+                    <Input
+                        placeholder="Search issues..."
+                        prefix={<SearchOutlined />}
+                        value={searchText}
+                        onChange={e => setSearchText(e.target.value)}
+                        className="w-full md:w-[250px]"
+                    />
+                    <Select placeholder="Assignee" className="w-full md:w-[150px]" allowClear onChange={setAssigneeFilter} value={assigneeFilter}>
+                        <Select.Option value="1">John Doe</Select.Option>
+                        <Select.Option value="2">Jane Smith</Select.Option>
+                    </Select>
+                    <Select placeholder="Epic" className="w-full md:w-[150px]" allowClear onChange={setEpicFilter} value={epicFilter}>
+                        <Select.Option value="epic1">Frontend Overhaul</Select.Option>
+                        <Select.Option value="epic2">Backend Performance</Select.Option>
+                    </Select>
+                </div>
+            </div>
+
             {/* Main Content */}
             <DragDropContext onDragEnd={handleDragEnd}>
                 <Row gutter={[32, 32]}>
@@ -221,7 +282,7 @@ const BacklogPage = () => {
                         <Card
                             title={
                                 <Text strong>
-                                    Backlog ({backlogIssues.length})
+                                    Backlog ({filteredBacklogIssues.length})
                                 </Text>
                             }
                             style={{ height: '100%' }}
@@ -239,10 +300,10 @@ const BacklogPage = () => {
                                             transition: 'background-color 0.2s'
                                         }}
                                     >
-                                        {backlogIssues.length === 0 ? (
-                                            <Empty description="No backlog items" size="small" />
+                                        {filteredBacklogIssues.length === 0 ? (
+                                            <Empty description="Your backlog is empty. Create an issue to get started." size="small" />
                                         ) : (
-                                            backlogIssues.map((issue, index) => (
+                                            filteredBacklogIssues.map((issue, index) => (
                                                 <IssueRow
                                                     key={issue._id}
                                                     issue={issue}
@@ -261,20 +322,28 @@ const BacklogPage = () => {
                     <Col xs={24} lg={12}>
                         <Card
                             title={
-                                <div>
-                                    <Text strong>
-                                        {activeSprint?.name || 'No Active Sprint'} ({sprintIssues.length})
-                                    </Text>
+                                <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-2">
+                                    <div className="flex items-center flex-wrap gap-2">
+                                        <Text strong>
+                                            {activeSprint?.name || 'No Active Sprint'} ({filteredSprintIssues.length})
+                                        </Text>
+                                        {activeSprint && (
+                                            <Tag
+                                                color={
+                                                    activeSprint.status === 'active' ? '#52c41a' :
+                                                        activeSprint.status === 'planning' ? '#1890ff' : '#999'
+                                                }
+                                                style={{ margin: 0 }}
+                                            >
+                                                {activeSprint.status}
+                                            </Tag>
+                                        )}
+                                    </div>
                                     {activeSprint && (
-                                        <Tag
-                                            color={
-                                                activeSprint.status === 'active' ? '#52c41a' :
-                                                    activeSprint.status === 'planning' ? '#1890ff' : '#999'
-                                            }
-                                            style={{ marginLeft: '8px' }}
-                                        >
-                                            {activeSprint.status}
-                                        </Tag>
+                                        <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
+                                            <Button size="small" type="default">Edit Dates</Button>
+                                            <Button size="small" type="primary">Complete Sprint</Button>
+                                        </div>
                                     )}
                                 </div>
                             }
@@ -296,10 +365,10 @@ const BacklogPage = () => {
                                                 transition: 'background-color 0.2s'
                                             }}
                                         >
-                                            {sprintIssues.length === 0 ? (
-                                                <Empty description="No sprint issues" size="small" />
+                                            {filteredSprintIssues.length === 0 ? (
+                                                <Empty description="Your sprint is empty. Create an issue to get started." size="small" />
                                             ) : (
-                                                sprintIssues.map((issue, index) => (
+                                                filteredSprintIssues.map((issue, index) => (
                                                     <IssueRow
                                                         key={issue._id}
                                                         issue={issue}

@@ -105,7 +105,7 @@ const UpcomingWorkCard = ({ upcomingTasks, unscheduledTasks }) => {
                         }}>
                             <CalendarOutlined style={{ fontSize: '20px', marginBottom: 6, opacity: 0.35, display: 'block' }} />
                             <Text type="secondary" style={{ fontSize: '11px', display: 'block' }}>
-                                No upcoming issues
+                                No deadlines this week.
                             </Text>
                         </div>
                     )}
