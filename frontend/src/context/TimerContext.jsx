@@ -45,7 +45,6 @@ export const TimerProvider = ({ children }) => {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Start timer
@@ -54,7 +53,7 @@ export const TimerProvider = ({ children }) => {
       const response = await axios.post(`/api/work-items/${workItemId}/work-logs/start`, {
         description
       });
-      
+
       if (response.data.success) {
         setRunningTimer(response.data.data);
         setError(null);
@@ -70,7 +69,7 @@ export const TimerProvider = ({ children }) => {
   const stopTimer = useCallback(async (workItemId) => {
     try {
       const response = await axios.post(`/api/work-items/${workItemId}/work-logs/stop`);
-      
+
       if (response.data.success) {
         setRunningTimer(null);
         setError(null);
@@ -90,7 +89,7 @@ export const TimerProvider = ({ children }) => {
 
     try {
       const response = await axios.post(`/api/work-items/${runningTimer.workItemId}/work-logs/stop`);
-      
+
       if (response.data.success) {
         setRunningTimer(null);
         setError(null);
@@ -106,7 +105,7 @@ export const TimerProvider = ({ children }) => {
   const stopAllTimers = useCallback(async () => {
     try {
       const response = await axios.post('/api/users/me/timers/stop');
-      
+
       if (response.data.success) {
         setRunningTimer(null);
         setError(null);

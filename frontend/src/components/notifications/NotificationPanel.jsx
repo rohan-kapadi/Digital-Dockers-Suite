@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Badge, Dropdown, Button, Empty, Spin, Divider, Tag, Space } from 'antd';
 import { BellOutlined, DeleteOutlined, CheckOutlined, ClearOutlined } from '@ant-design/icons';
 import useRealtimeNotifications from '../../hooks/useRealtimeNotifications';
+import { useThemeMode } from '../../context/ThemeContext';
 import './NotificationPanel.css';
 
 /**
@@ -11,6 +12,9 @@ import './NotificationPanel.css';
  * Shows unread count and allows user to manage notifications
  */
 const NotificationPanel = ({ token }) => {
+  const { mode } = useThemeMode();
+  const isDark = mode === 'dark';
+
   const {
     notifications,
     unreadCount,
@@ -238,9 +242,11 @@ const NotificationPanel = ({ token }) => {
       <Badge
         count={unreadCount}
         style={{
-          backgroundColor: unreadCount > 0 ? '#ff4d4f' : '#d9d9d9',
+          backgroundColor: unreadCount > 0 ? '#ff4d4f' : (isDark ? '#475569' : '#d9d9d9'),
           color: '#fff',
-          boxShadow: unreadCount > 0 ? '0 0 0 1px #fff' : 'none'
+          boxShadow: unreadCount > 0
+            ? `0 0 0 1px ${isDark ? '#0f172a' : '#fff'}`
+            : 'none'
         }}
       >
         <Button

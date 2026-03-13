@@ -18,7 +18,6 @@ const SpaceComments = ({ spaceId, currentUser }) => {
     loadComments();
     const interval = setInterval(loadComments, 10000); // Poll every 10s
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spaceId]);
 
   const loadComments = async () => {
@@ -26,7 +25,7 @@ const SpaceComments = ({ spaceId, currentUser }) => {
     try {
       const response = await axios.get(
         `/api/spaces/${spaceId}/comments`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
       setComments(response.data.data || []);
     } catch {
@@ -47,7 +46,7 @@ const SpaceComments = ({ spaceId, currentUser }) => {
       await axios.post(
         `/api/spaces/${spaceId}/comments`,
         { text: newComment },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
 
       setNewComment('');
@@ -64,7 +63,7 @@ const SpaceComments = ({ spaceId, currentUser }) => {
     try {
       await axios.delete(
         `/api/spaces/${spaceId}/comments/${commentId}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
 
       loadComments();

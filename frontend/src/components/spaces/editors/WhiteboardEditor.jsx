@@ -43,7 +43,6 @@ const WhiteboardEditor = ({
     // Initialize history
     setHistory([canvas.toDataURL()]);
     setHistoryStep(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getCanvasContext = () => {

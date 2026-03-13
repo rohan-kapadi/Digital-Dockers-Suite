@@ -324,3 +324,67 @@
         font-size: 18px;
     }
 }
+
+/* ==========================================
+   DARK MODE OVERRIDES – ROADMAP
+   ========================================== */
+
+.dark .roadmap-page {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+}
+
+.dark .roadmap-header h1,
+.dark .epic-title,
+.dark .roadmap-divider h2 {
+    color: var(--text-on-surface, #e6edf3);
+}
+
+.dark .roadmap-header .text-secondary,
+.dark .control-label,
+.dark .legend-item,
+.dark .epic-description,
+.dark .month-header,
+.dark .month-header .year-name,
+.dark .epic-name-column,
+.dark .bar-label,
+.dark .epic-owner {
+    color: var(--text-on-surface-secondary, #8b949e);
+}
+
+.dark .roadmap-controls,
+.dark .epic-timeline-container,
+.dark .epic-row {
+    background: var(--surface-primary, #161b22);
+    border-color: var(--border-surface, #30363d);
+    box-shadow: var(--shadow-dark-sm, 0 1px 3px rgba(0,0,0,0.4));
+}
+
+.dark .timeline-header,
+.dark .month-header {
+    background: var(--surface-secondary, #1c2128);
+    border-color: var(--border-surface, #30363d);
+}
+
+.dark .roadmap-divider {
+    border-bottom-color: var(--border-surface, #30363d);
+}
+
+.dark .timeline-track {
+    background: linear-gradient(
+        to right,
+        transparent 0%,
+        transparent calc(100% - 1px),
+        var(--border-surface, #30363d) calc(100% - 1px),
+        var(--border-surface, #30363d) 100%
+    );
+    background-size: 100px 100%;
+}
+
+.dark .epic-row:hover,
+.dark .epic-bar:hover {
+    box-shadow: var(--shadow-dark-md, 0 4px 12px rgba(0,0,0,0.5));
+}
+
+.dark :global(.ant-spin-spinning) {
+    background: rgba(13, 17, 23, 0.72);
+}

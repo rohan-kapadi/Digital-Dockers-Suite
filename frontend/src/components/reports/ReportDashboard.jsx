@@ -36,6 +36,7 @@ import { useState, useEffect, useRef } from "react";
 import { useTeams, useTeamMetrics } from "../../hooks/useTeams";
 import TeamsPanel from "./TeamsPanel";
 import io from "socket.io-client";
+import { useThemeMode } from "../../context/ThemeContext";
 
 ChartJS.register(
   CategoryScale,
@@ -58,6 +59,8 @@ const MetricCardSkeleton = () => (
 );
 
 const ReportDashboard = () => {
+  const { mode } = useThemeMode();
+  const isDark = mode === "dark";
   // Team selection state
   const [selectedTeamId, setSelectedTeamId] = useState(null);
 
@@ -140,6 +143,10 @@ const ReportDashboard = () => {
   };
 
   // Prepare chart data from metrics
+  const chartAxisTextColor = isDark ? "#8b949e" : "#64748b";
+  const chartTitleColor = isDark ? "#e6edf3" : "#172B4D";
+  const chartGridColor = isDark ? "#30363d" : "#e2e8f0";
+
   const velocityData =
     metrics?.velocityTrend?.length > 0
       ? {
@@ -148,12 +155,12 @@ const ReportDashboard = () => {
             {
               label: "Committed",
               data: metrics.velocityTrend.map((s) => s.committed || 0),
-              backgroundColor: "#BDC3C7",
+              backgroundColor: isDark ? "#4b5563" : "#BDC3C7",
             },
             {
               label: "Completed",
               data: metrics.velocityTrend.map((s) => s.completed || 0),
-              backgroundColor: "#0052CC",
+              backgroundColor: isDark ? "#58a6ff" : "#0052CC",
             },
           ],
         }
@@ -170,7 +177,9 @@ const ReportDashboard = () => {
               metrics.taskDistribution.review || 0,
               metrics.taskDistribution.done || 0,
             ],
-            backgroundColor: ["#dfe1e6", "#0052cc", "#6554C0", "#00875a"],
+            backgroundColor: isDark
+              ? ["#484f58", "#58a6ff", "#a371f7", "#3fb950"]
+              : ["#dfe1e6", "#0052cc", "#6554C0", "#00875a"],
             borderWidth: 0,
           },
         ],
@@ -180,11 +189,26 @@ const ReportDashboard = () => {
   const velocityOptions = {
     responsive: true,
     plugins: {
-      legend: { position: "top" },
-      title: { display: true, text: "Velocity (Last 5 Completed Sprints)" },
+      legend: {
+        position: "top",
+        labels: { color: chartAxisTextColor },
+      },
+      title: {
+        display: true,
+        text: "Velocity (Last 5 Completed Sprints)",
+        color: chartTitleColor,
+      },
     },
     scales: {
-      y: { beginAtZero: true },
+      x: {
+        ticks: { color: chartAxisTextColor },
+        grid: { color: chartGridColor },
+      },
+      y: {
+        beginAtZero: true,
+        ticks: { color: chartAxisTextColor },
+        grid: { color: chartGridColor },
+      },
     },
   };
 
@@ -192,14 +216,17 @@ const ReportDashboard = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "right" },
+      legend: {
+        position: "right",
+        labels: { color: chartAxisTextColor },
+      },
     },
   };
 
   // Skeleton loading state for metrics cards
 
   return (
-    <div style={{ padding: "24px", maxWidth: 1600 }}>
+    <div style={{ padding: "24px", maxWidth: 1600, color: isDark ? "#e6edf3" : undefined }}>
       {/* Header */}
       <div
         style={{
@@ -214,7 +241,9 @@ const ReportDashboard = () => {
             level={2}
             style={{
               margin: 0,
-              background: "linear-gradient(135deg, #0052CC, #6554C0)",
+              background: isDark
+                ? "linear-gradient(135deg, #79c0ff, #a371f7)"
+                : "linear-gradient(135deg, #0052CC, #6554C0)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
@@ -277,7 +306,7 @@ const ReportDashboard = () => {
                 title="Total Tasks"
                 value={metrics?.totalTasks || 0}
                 prefix={<CheckCircleOutlined />}
-                valueStyle={{ color: "#0052cc" }}
+                valueStyle={{ color: isDark ? "#58a6ff" : "#0052cc" }}
               />
             </Card>
           )}
@@ -291,7 +320,7 @@ const ReportDashboard = () => {
                 title="Completed"
                 value={metrics?.completedTasks || 0}
                 suffix={`/ ${metrics?.totalTasks || 0}`}
-                valueStyle={{ color: "#00875a" }}
+                valueStyle={{ color: isDark ? "#3fb950" : "#00875a" }}
               />
             </Card>
           )}
@@ -308,8 +337,12 @@ const ReportDashboard = () => {
                 valueStyle={{
                   color:
                     (metrics?.completionRate || 0) >= 50
-                      ? "#00875a"
-                      : "#faad14",
+                      ? isDark
+                        ? "#3fb950"
+                        : "#00875a"
+                      : isDark
+                        ? "#e3b341"
+                        : "#faad14",
                 }}
               />
             </Card>
@@ -325,7 +358,7 @@ const ReportDashboard = () => {
                 value={metrics?.avgVelocity || 0}
                 suffix="pts"
                 prefix={<ClockCircleOutlined />}
-                valueStyle={{ color: "#0052cc" }}
+                valueStyle={{ color: isDark ? "#58a6ff" : "#0052cc" }}
               />
             </Card>
           )}

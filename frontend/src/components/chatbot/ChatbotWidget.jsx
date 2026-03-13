@@ -36,7 +36,6 @@ const ChatbotWidget = () => {
         if (isOpen && messages.length === 0) {
             loadWelcome();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
     const loadWelcome = async () => {

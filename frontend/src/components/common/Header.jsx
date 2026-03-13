@@ -32,6 +32,7 @@ const Header = ({ onMenuClick }) => {
     const navigate = useNavigate();
     const screens = useBreakpoint();
     const isMobile = !screens.md;
+    const isDarkMode = mode === 'dark';
 
     // Roles that can create tasks
     const canCreate = ['admin', 'project_manager', 'technical_lead', 'marketing_lead'].includes(user?.role);
@@ -135,9 +136,12 @@ const Header = ({ onMenuClick }) => {
             width: 400,
             maxHeight: 400,
             overflow: 'auto',
-            backgroundColor: '#fff',
+            backgroundColor: isDarkMode ? '#161b22' : '#fff',
             borderRadius: 8,
-            boxShadow: '0 6px 16px rgba(0,0,0,0.12)',
+            border: `1px solid ${isDarkMode ? '#30363d' : '#f0f0f0'}`,
+            boxShadow: isDarkMode
+                ? '0 6px 20px rgba(0,0,0,0.45)'
+                : '0 6px 16px rgba(0,0,0,0.12)',
             padding: 8
         }}>
             {searchLoading ? (
@@ -154,7 +158,11 @@ const Header = ({ onMenuClick }) => {
                                 dataSource={searchResults.tasks}
                                 renderItem={(item) => (
                                     <List.Item
-                                        style={{ padding: '8px 12px', cursor: 'pointer' }}
+                                        style={{
+                                            padding: '8px 12px',
+                                            cursor: 'pointer',
+                                            color: isDarkMode ? '#e6edf3' : 'inherit'
+                                        }}
                                         onClick={() => handleSearchResultClick(item, 'task')}
                                     >
                                         <Space>
@@ -174,7 +182,11 @@ const Header = ({ onMenuClick }) => {
                                 dataSource={searchResults.projects}
                                 renderItem={(item) => (
                                     <List.Item
-                                        style={{ padding: '8px 12px', cursor: 'pointer' }}
+                                        style={{
+                                            padding: '8px 12px',
+                                            cursor: 'pointer',
+                                            color: isDarkMode ? '#e6edf3' : 'inherit'
+                                        }}
                                         onClick={() => handleSearchResultClick(item, 'project')}
                                     >
                                         <Space>
@@ -224,7 +236,13 @@ const Header = ({ onMenuClick }) => {
                         onClick={() => navigate('/dashboard')}
                     >
                         <AppstoreOutlined style={{ fontSize: 24, color: '#0052CC' }} />
-                        <Text strong className="hidden md:block" style={{ fontSize: 18, color: '#172B4D' }}>Digital Dockers</Text>
+                        <Text
+                            strong
+                            className="hidden md:block"
+                            style={{ fontSize: 18, color: isDarkMode ? '#e6edf3' : '#172B4D' }}
+                        >
+                            Digital Dockers
+                        </Text>
                     </div>
 
                     <Space size="middle" className="hidden md:flex">
@@ -251,7 +269,7 @@ const Header = ({ onMenuClick }) => {
                         >
                             <Input
                                 placeholder="Search issues and projects"
-                                prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+                                prefix={<SearchOutlined style={{ color: isDarkMode ? '#8b949e' : '#bfbfbf' }} />}
                                 className="w-[180px] lg:w-[240px] rounded"
                                 value={searchQuery}
                                 onChange={handleSearchChange}
@@ -266,7 +284,11 @@ const Header = ({ onMenuClick }) => {
                             <HeaderCalendarDropdown />
                             <NotificationsDropdown />
                             <QuestionCircleOutlined
-                                style={{ fontSize: 20, cursor: 'pointer', color: '#6B778C' }}
+                                style={{
+                                    fontSize: 20,
+                                    cursor: 'pointer',
+                                    color: isDarkMode ? '#8b949e' : '#6B778C'
+                                }}
                                 onClick={() => window.open('https://support.atlassian.com/jira-software-cloud/', '_blank')}
                             />
                         </div>

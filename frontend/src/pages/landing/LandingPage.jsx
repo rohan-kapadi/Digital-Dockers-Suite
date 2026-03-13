@@ -4,17 +4,14 @@ import {
     AppBar,
     Box,
     Button,
-    Chip,
     Container,
     Divider,
     Grid,
     IconButton,
-    Paper,
     Stack,
     Toolbar,
     Typography
 } from '@mui/material';
-import { alpha, useTheme } from '@mui/material/styles';
 import { Menu as MenuIcon, Close as CloseIcon, ArrowForward } from '@mui/icons-material';
 import {
     Brain,
@@ -30,6 +27,7 @@ import {
     Video,
     Zap
 } from 'lucide-react';
+import './LandingPage.css';
 
 const NAV_ITEMS = [
     { id: 'features', label: 'Features' },
@@ -106,18 +104,31 @@ const KPI_ITEMS = [
     { value: '24/7', label: 'AI Assistant' }
 ];
 
+const TONE_ACCENTS = {
+    primary: '#1d4ed8',
+    secondary: '#0f766e',
+    success: '#0ea5e9',
+    warning: '#f97316',
+    error: '#dc2626',
+    info: '#0ea5e9'
+};
+
 const LandingPage = () => {
     const navigate = useNavigate();
-    const theme = useTheme();
-    const isDark = theme.palette.mode === 'dark';
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         const onScroll = () => setIsScrolled(window.scrollY > 12);
         window.addEventListener('scroll', onScroll);
         return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setIsReady(true), 60);
+        return () => clearTimeout(timer);
     }, []);
 
     const scrollToSection = (id) => {
@@ -129,78 +140,57 @@ const LandingPage = () => {
     };
 
     return (
-        <Box
-            sx={{
-                minHeight: '100vh',
-                color: 'text.primary',
-                background: isDark
-                    ? `radial-gradient(1200px 500px at 50% -5%, ${alpha(theme.palette.primary.main, 0.25)} 0%, transparent 70%), ${theme.palette.background.default}`
-                    : `radial-gradient(1200px 500px at 50% -5%, ${alpha(theme.palette.primary.main, 0.1)} 0%, transparent 70%), ${theme.palette.background.default}`
-            }}
-        >
+        <Box className={`dd-landing ${isReady ? 'dd-ready' : ''}`}>
+            <Box className="dd-bg-orb dd-bg-orb-a" aria-hidden="true" />
+            <Box className="dd-bg-orb dd-bg-orb-b" aria-hidden="true" />
+            <Box className="dd-grid-overlay" aria-hidden="true" />
+
             <AppBar
                 position="fixed"
                 elevation={0}
-                sx={{
-                    bgcolor: isScrolled ? alpha(theme.palette.background.paper, isDark ? 0.9 : 0.92) : 'transparent',
-                    color: 'text.primary',
-                    backdropFilter: isScrolled ? 'blur(14px)' : 'none',
-                    borderBottom: `1px solid ${isScrolled ? alpha(theme.palette.divider, 0.9) : 'transparent'}`,
-                    transition: 'all 0.2s ease'
-                }}
+                className={`dd-navbar ${isScrolled ? 'dd-navbar-scrolled' : ''}`}
             >
                 <Container maxWidth="lg">
-                    <Toolbar disableGutters sx={{ minHeight: 72 }}>
+                    <Toolbar disableGutters className="dd-toolbar">
                         <Box
-                            sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer', flexGrow: 1 }}
+                            className="dd-brand"
                             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                         >
-                            <Box
-                                sx={{
-                                    width: 36,
-                                    height: 36,
-                                    borderRadius: '10px',
-                                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}
-                            >
+                            <Box className="dd-brand-mark">
                                 <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
                                     <path d="M16 2L2 10L16 18L30 10L16 2Z" fill="rgba(255,255,255,0.9)" />
                                     <path d="M2 10V22L16 30L30 22V10L16 18L2 10Z" fill="rgba(255,255,255,0.65)" />
                                 </svg>
                             </Box>
-                            <Typography sx={{ fontSize: '1.15rem', fontWeight: 700 }}>
+                            <Typography className="dd-brand-text">
                                 Digital Dockers
                             </Typography>
                         </Box>
 
-                        <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }}>
+                        <Stack direction="row" spacing={0.8} className="dd-nav-links">
                             {NAV_ITEMS.map((item) => (
                                 <Button
                                     key={item.id}
-                                    color="inherit"
                                     onClick={() => scrollToSection(item.id)}
-                                    sx={{ color: 'text.secondary', fontWeight: 500 }}
+                                    className="dd-nav-btn"
                                 >
                                     {item.label}
                                 </Button>
                             ))}
                         </Stack>
 
-                        <Stack direction="row" spacing={1.2} sx={{ display: { xs: 'none', sm: 'flex' } }}>
-                            <Button variant="text" color="inherit" onClick={() => navigate('/login')}>
+                        <Stack direction="row" spacing={1.2} className="dd-nav-ctas">
+                            <Button variant="text" onClick={() => navigate('/login')} className="dd-btn dd-btn-ghost">
                                 Sign In
                             </Button>
-                            <Button variant="contained" onClick={() => navigate('/register')}>
+                            <Button variant="contained" disableElevation onClick={() => navigate('/register')} className="dd-btn dd-btn-primary">
                                 Create Account
                             </Button>
                         </Stack>
 
                         <IconButton
                             onClick={() => setMobileMenuOpen((prev) => !prev)}
-                            sx={{ display: { xs: 'inline-flex', md: 'none' }, ml: 1 }}
+                            className="dd-mobile-toggle"
                             aria-label="toggle navigation menu"
                         >
                             {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
@@ -208,174 +198,111 @@ const LandingPage = () => {
                     </Toolbar>
 
                     {mobileMenuOpen && (
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                display: { md: 'none' },
-                                mb: 1.5,
-                                p: 2,
-                                borderRadius: 2,
-                                border: `1px solid ${theme.palette.divider}`,
-                                bgcolor: 'background.paper'
-                            }}
-                        >
+                        <Box className="dd-mobile-menu">
                             <Stack spacing={1}>
                                 {NAV_ITEMS.map((item) => (
                                     <Button
                                         key={item.id}
                                         onClick={() => scrollToSection(item.id)}
-                                        sx={{ justifyContent: 'flex-start', color: 'text.secondary' }}
+                                        className="dd-mobile-link"
                                     >
                                         {item.label}
                                     </Button>
                                 ))}
                                 <Divider sx={{ my: 0.5 }} />
-                                <Button onClick={() => navigate('/login')} sx={{ justifyContent: 'flex-start' }}>
+                                <Button onClick={() => navigate('/login')} className="dd-mobile-link">
                                     Sign In
                                 </Button>
-                                <Button variant="contained" onClick={() => navigate('/register')}>
+                                <Button variant="contained" onClick={() => navigate('/register')} className="dd-btn dd-btn-primary">
                                     Create Account
                                 </Button>
                             </Stack>
-                        </Paper>
+                        </Box>
                     )}
                 </Container>
             </AppBar>
 
-            <Box component="section" sx={{ pt: { xs: 13, md: 15 }, pb: { xs: 7, md: 10 } }}>
+            <Box component="section" className="dd-hero" id="top">
                 <Container maxWidth="lg">
-                    <Grid container spacing={{ xs: 3, md: 4 }} alignItems="stretch">
+                    <Grid container spacing={{ xs: 4, md: 5 }} alignItems="stretch">
                         <Grid item xs={12} md={7}>
-                            <Stack spacing={3} sx={{ height: '100%', justifyContent: 'center' }}>
-                                <Chip
-                                    icon={<Sparkles size={14} />}
-                                    label="AI-powered productivity suite"
-                                    sx={{
-                                        width: 'fit-content',
-                                        bgcolor: alpha(theme.palette.primary.main, 0.12),
-                                        color: 'text.primary',
-                                        border: `1px solid ${alpha(theme.palette.primary.main, 0.35)}`
-                                    }}
-                                />
+                            <Stack spacing={3} className="dd-hero-copy">
+                                <Box className="dd-pill">
+                                    <Sparkles size={14} />
+                                    <span>AI-powered productivity suite</span>
+                                </Box>
 
-                                <Typography
-                                    variant="h2"
-                                    sx={{
-                                        fontWeight: 800,
-                                        lineHeight: 1.15,
-                                        letterSpacing: '-0.02em',
-                                        maxWidth: 700
-                                    }}
-                                >
+                                <Typography variant="h2" className="dd-hero-title">
                                     Plan smarter, move faster, and deliver better with Digital Dockers.
                                 </Typography>
 
-                                <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 650, lineHeight: 1.8 }}>
+                                <Typography variant="body1" className="dd-hero-subtitle">
                                     Manage tasks, meetings, communication, and reporting in one collaborative workspace powered by practical AI tools.
                                 </Typography>
 
-                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.3} className="dd-hero-cta">
                                     <Button
                                         variant="contained"
+                                        disableElevation
                                         size="large"
                                         endIcon={<ArrowForward />}
+                                        className="dd-btn dd-btn-primary"
                                         onClick={() => navigate('/register')}
                                     >
                                         Start Free
                                     </Button>
-                                    <Button variant="outlined" size="large" onClick={() => navigate('/login')}>
+                                    <Button variant="outlined" size="large" className="dd-btn dd-btn-outline" onClick={() => navigate('/login')}>
                                         Sign In
                                     </Button>
                                 </Stack>
 
-                                <Paper
-                                    elevation={0}
-                                    sx={{
-                                        p: 2.25,
-                                        borderRadius: 3,
-                                        border: `1px solid ${theme.palette.divider}`,
-                                        bgcolor: alpha(theme.palette.background.paper, isDark ? 0.72 : 0.88)
-                                    }}
-                                >
+                                <Box className="dd-kpi-panel">
                                     <Grid container>
                                         {KPI_ITEMS.map((item, index) => (
                                             <Grid item xs={4} key={item.label}>
-                                                <Box
-                                                    sx={{
-                                                        textAlign: 'center',
-                                                        px: { xs: 0.5, sm: 1 },
-                                                        borderRight: index < KPI_ITEMS.length - 1 ? `1px solid ${theme.palette.divider}` : 'none'
-                                                    }}
-                                                >
-                                                    <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                                                <Box className="dd-kpi-item" sx={{ borderRight: index < KPI_ITEMS.length - 1 ? '1px solid var(--dd-border)' : 'none' }}>
+                                                    <Typography variant="h5" className="dd-kpi-value">
                                                         {item.value}
                                                     </Typography>
-                                                    <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: '0.03em' }}>
+                                                    <Typography variant="caption" className="dd-kpi-label">
                                                         {item.label}
                                                     </Typography>
                                                 </Box>
                                             </Grid>
                                         ))}
                                     </Grid>
-                                </Paper>
+                                </Box>
                             </Stack>
                         </Grid>
 
                         <Grid item xs={12} md={5}>
-                            <Paper
-                                elevation={0}
-                                sx={{
-                                    p: { xs: 2.2, md: 2.8 },
-                                    borderRadius: 3,
-                                    border: `1px solid ${theme.palette.divider}`,
-                                    bgcolor: alpha(theme.palette.background.paper, isDark ? 0.74 : 0.9),
-                                    height: '100%'
-                                }}
-                            >
-                                <Typography variant="h6" sx={{ mb: 0.75 }}>
+                            <Box className="dd-hero-panel">
+                                <Typography variant="h6" className="dd-panel-title">
                                     Everything in one workflow hub
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2.2 }}>
+                                <Typography variant="body2" className="dd-panel-subtitle">
                                     Built to match how your team already works across planning, execution, and reporting.
                                 </Typography>
 
-                                <Stack spacing={1.3}>
+                                <Stack spacing={1.2}>
                                     {FEATURE_ITEMS.slice(0, 4).map((feature) => {
                                         const Icon = feature.icon;
-                                        const accent = theme.palette[feature.tone]?.main || theme.palette.primary.main;
+                                        const accent = TONE_ACCENTS[feature.tone] || TONE_ACCENTS.primary;
 
                                         return (
                                             <Box
                                                 key={feature.title}
-                                                sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 1.2,
-                                                    p: 1.25,
-                                                    borderRadius: 2,
-                                                    border: `1px solid ${alpha(accent, 0.28)}`,
-                                                    bgcolor: alpha(accent, isDark ? 0.12 : 0.07)
-                                                }}
+                                                className="dd-panel-row"
+                                                sx={{ '--dd-accent': accent }}
                                             >
-                                                <Box
-                                                    sx={{
-                                                        width: 34,
-                                                        height: 34,
-                                                        borderRadius: 1.5,
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        color: accent,
-                                                        bgcolor: alpha(accent, isDark ? 0.25 : 0.15)
-                                                    }}
-                                                >
+                                                <Box className="dd-panel-row-icon">
                                                     <Icon size={17} />
                                                 </Box>
-                                                <Box sx={{ minWidth: 0 }}>
-                                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                <Box className="dd-panel-row-copy">
+                                                    <Typography variant="body2" className="dd-panel-row-title">
                                                         {feature.title}
                                                     </Typography>
-                                                    <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.4 }}>
+                                                    <Typography variant="caption" className="dd-panel-row-desc">
                                                         {feature.description}
                                                     </Typography>
                                                 </Box>
@@ -383,67 +310,41 @@ const LandingPage = () => {
                                         );
                                     })}
                                 </Stack>
-                            </Paper>
+                            </Box>
                         </Grid>
                     </Grid>
                 </Container>
             </Box>
 
-            <Box id="features" component="section" sx={{ py: { xs: 7, md: 10 } }}>
+            <Box id="features" component="section" className="dd-features-section">
                 <Container maxWidth="lg">
-                    <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 5 } }}>
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1.25 }}>
+                    <Box className="dd-section-head">
+                        <Typography variant="h4" className="dd-section-title">
                             Core capabilities aligned with your team flow
                         </Typography>
-                        <Typography color="text.secondary" sx={{ maxWidth: 760, mx: 'auto' }}>
+                        <Typography className="dd-section-subtitle">
                             Use focused AI modules for communication, planning, document work, and execution tracking without switching between tools.
                         </Typography>
                     </Box>
 
-                    <Grid container spacing={2.2}>
-                        {FEATURE_ITEMS.map((feature) => {
+                    <Grid container spacing={2.4}>
+                        {FEATURE_ITEMS.map((feature, index) => {
                             const Icon = feature.icon;
-                            const accent = theme.palette[feature.tone]?.main || theme.palette.primary.main;
+                            const accent = TONE_ACCENTS[feature.tone] || TONE_ACCENTS.primary;
 
                             return (
                                 <Grid item xs={12} sm={6} md={4} key={feature.title}>
-                                    <Paper
-                                        elevation={0}
-                                        sx={{
-                                            p: 2.4,
-                                            borderRadius: 3,
-                                            border: `1px solid ${theme.palette.divider}`,
-                                            bgcolor: alpha(theme.palette.background.paper, isDark ? 0.74 : 0.9),
-                                            height: '100%',
-                                            transition: 'transform 0.2s ease, border-color 0.2s ease',
-                                            '&:hover': {
-                                                transform: 'translateY(-2px)',
-                                                borderColor: alpha(accent, 0.45)
-                                            }
-                                        }}
-                                    >
-                                        <Box
-                                            sx={{
-                                                width: 44,
-                                                height: 44,
-                                                borderRadius: 2,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                color: accent,
-                                                bgcolor: alpha(accent, isDark ? 0.24 : 0.13),
-                                                mb: 1.6
-                                            }}
-                                        >
+                                    <Box className="dd-feature-card" sx={{ '--dd-accent': accent, '--dd-delay': `${index * 0.07}s` }}>
+                                        <Box className="dd-feature-icon-wrap">
                                             <Icon size={20} />
                                         </Box>
-                                        <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.6 }}>
+                                        <Typography variant="subtitle1" className="dd-feature-title">
                                             {feature.title}
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                                        <Typography variant="body2" className="dd-feature-desc">
                                             {feature.description}
                                         </Typography>
-                                    </Paper>
+                                    </Box>
                                 </Grid>
                             );
                         })}
@@ -451,52 +352,28 @@ const LandingPage = () => {
                 </Container>
             </Box>
 
-            <Box id="workflow" component="section" sx={{ pb: { xs: 7, md: 9 } }}>
+            <Box id="workflow" component="section" className="dd-workflow-section">
                 <Container maxWidth="lg">
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: { xs: 2.2, md: 3 },
-                            borderRadius: 3,
-                            border: `1px solid ${theme.palette.divider}`,
-                            bgcolor: alpha(theme.palette.background.paper, isDark ? 0.72 : 0.9)
-                        }}
-                    >
-                        <Typography variant="h5" sx={{ fontWeight: 700, mb: 2.5 }}>
+                    <Box className="dd-workflow-shell">
+                        <Typography variant="h5" className="dd-workflow-title">
                             Designed for real delivery teams
                         </Typography>
-                        <Grid container spacing={2}>
-                            {WORKFLOW_STEPS.map((step) => {
+                        <Grid container spacing={2.2}>
+                            {WORKFLOW_STEPS.map((step, index) => {
                                 const Icon = step.icon;
                                 return (
                                     <Grid item xs={12} md={4} key={step.title}>
-                                        <Box
-                                            sx={{
-                                                p: 2,
-                                                borderRadius: 2,
-                                                border: `1px solid ${theme.palette.divider}`,
-                                                height: '100%'
-                                            }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    width: 36,
-                                                    height: 36,
-                                                    borderRadius: 1.5,
-                                                    bgcolor: alpha(theme.palette.primary.main, isDark ? 0.25 : 0.12),
-                                                    color: 'primary.main',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    mb: 1.2
-                                                }}
-                                            >
-                                                <Icon size={18} />
+                                        <Box className="dd-workflow-card" sx={{ '--dd-delay': `${index * 0.08}s` }}>
+                                            <Box className="dd-workflow-top">
+                                                <Box className="dd-workflow-index">0{index + 1}</Box>
+                                                <Box className="dd-workflow-icon">
+                                                    <Icon size={18} />
+                                                </Box>
                                             </Box>
-                                            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.6 }}>
+                                            <Typography variant="subtitle1" className="dd-workflow-card-title">
                                                 {step.title}
                                             </Typography>
-                                            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                                            <Typography variant="body2" className="dd-workflow-card-desc">
                                                 {step.description}
                                             </Typography>
                                         </Box>
@@ -504,43 +381,36 @@ const LandingPage = () => {
                                 );
                             })}
                         </Grid>
-                    </Paper>
+                    </Box>
                 </Container>
             </Box>
 
-            <Box id="cta" component="section" sx={{ pb: { xs: 7, md: 10 } }}>
+            <Box id="cta" component="section" className="dd-cta-section">
                 <Container maxWidth="lg">
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            p: { xs: 2.5, md: 4 },
-                            borderRadius: 3,
-                            border: `1px solid ${alpha(theme.palette.primary.main, 0.35)}`,
-                            background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, isDark ? 0.32 : 0.12)} 0%, ${alpha(theme.palette.secondary.main, isDark ? 0.2 : 0.1)} 100%)`
-                        }}
-                    >
-                        <Stack spacing={2} sx={{ textAlign: 'center', alignItems: 'center' }}>
-                            <Chip icon={<Shield size={14} />} label="Secure. Scalable. Team-ready." />
-                            <Typography variant="h4" sx={{ fontWeight: 700, maxWidth: 760 }}>
-                                Bring planning, execution, and AI assistance into one consistent workspace.
-                            </Typography>
-                            <Typography color="text.secondary" sx={{ maxWidth: 720 }}>
-                                Create your workspace in minutes and start collaborating with the same UI patterns your team uses across the platform.
-                            </Typography>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.4}>
-                                <Button variant="contained" size="large" onClick={() => navigate('/register')}>
-                                    Create Account
-                                </Button>
-                                <Button variant="outlined" size="large" onClick={() => navigate('/login')}>
-                                    Sign In
-                                </Button>
-                            </Stack>
+                    <Box className="dd-cta-shell">
+                        <Box className="dd-cta-badge">
+                            <Shield size={14} />
+                            <span>Secure. Scalable. Team-ready.</span>
+                        </Box>
+                        <Typography variant="h4" className="dd-cta-title">
+                            Bring planning, execution, and AI assistance into one consistent workspace.
+                        </Typography>
+                        <Typography className="dd-cta-subtitle">
+                            Create your workspace in minutes and start collaborating with the same UI patterns your team uses across the platform.
+                        </Typography>
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.2}>
+                            <Button variant="contained" size="large" disableElevation className="dd-btn dd-btn-primary" onClick={() => navigate('/register')}>
+                                Create Account
+                            </Button>
+                            <Button variant="outlined" size="large" className="dd-btn dd-btn-outline" onClick={() => navigate('/login')}>
+                                Sign In
+                            </Button>
                         </Stack>
-                    </Paper>
+                    </Box>
                 </Container>
             </Box>
 
-            <Box component="footer" sx={{ pb: 3 }}>
+            <Box component="footer" className="dd-footer">
                 <Container maxWidth="lg">
                     <Divider sx={{ mb: 2.5 }} />
                     <Stack
@@ -549,13 +419,13 @@ const LandingPage = () => {
                         justifyContent="space-between"
                         spacing={1.5}
                     >
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" className="dd-footer-text">
                             © {new Date().getFullYear()} Digital Dockers. All rights reserved.
                         </Typography>
-                        <Stack direction="row" spacing={1}>
-                            <Button size="small" onClick={() => scrollToSection('features')}>Features</Button>
-                            <Button size="small" onClick={() => scrollToSection('workflow')}>Workflow</Button>
-                            <Button size="small" onClick={() => scrollToSection('cta')}>Start</Button>
+                        <Stack direction="row" spacing={1} className="dd-footer-links">
+                            <Button size="small" className="dd-footer-link" onClick={() => scrollToSection('features')}>Features</Button>
+                            <Button size="small" className="dd-footer-link" onClick={() => scrollToSection('workflow')}>Workflow</Button>
+                            <Button size="small" className="dd-footer-link" onClick={() => scrollToSection('cta')}>Start</Button>
                         </Stack>
                     </Stack>
                 </Container>

@@ -1,6 +1,7 @@
 import { Card, Avatar, Typography, Skeleton, Tooltip, Badge } from 'antd';
 import { TeamOutlined, UserOutlined, ProjectOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
+import { useThemeMode } from '../../context/ThemeContext';
 
 const { Text, Title } = Typography;
 
@@ -8,6 +9,9 @@ const { Text, Title } = Typography;
  * TeamsPanel - Horizontal scrollable team cards for filtering analytics
  */
 const TeamsPanel = ({ teams, selectedTeamId, onTeamSelect, loading }) => {
+    const { mode } = useThemeMode();
+    const isDark = mode === 'dark';
+
     if (loading) {
         return (
             <div style={{
@@ -48,7 +52,16 @@ const TeamsPanel = ({ teams, selectedTeamId, onTeamSelect, loading }) => {
 
     return (
         <div style={{ marginBottom: 24 }}>
-            <Title level={5} style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Title
+                level={5}
+                style={{
+                    marginBottom: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    color: isDark ? '#e6edf3' : undefined,
+                }}
+            >
                 <TeamOutlined />
                 Select Team
             </Title>
@@ -72,9 +85,21 @@ const TeamsPanel = ({ teams, selectedTeamId, onTeamSelect, loading }) => {
                                 minWidth: 220,
                                 flex: '0 0 auto',
                                 cursor: 'pointer',
-                                border: isSelected ? '2px solid #0052CC' : '1px solid #d9d9d9',
-                                background: isSelected ? 'linear-gradient(135deg, #f0f5ff 0%, #ffffff 100%)' : '#fff',
-                                boxShadow: isSelected ? '0 4px 12px rgba(0, 82, 204, 0.15)' : undefined,
+                                border: isSelected
+                                    ? `2px solid ${isDark ? '#58a6ff' : '#0052CC'}`
+                                    : `1px solid ${isDark ? '#30363d' : '#d9d9d9'}`,
+                                background: isSelected
+                                    ? isDark
+                                        ? 'linear-gradient(135deg, #1c2128 0%, #21262d 100%)'
+                                        : 'linear-gradient(135deg, #f0f5ff 0%, #ffffff 100%)'
+                                    : isDark
+                                        ? '#161b22'
+                                        : '#fff',
+                                boxShadow: isSelected
+                                    ? isDark
+                                        ? '0 4px 16px rgba(0, 0, 0, 0.45)'
+                                        : '0 4px 12px rgba(0, 82, 204, 0.15)'
+                                    : undefined,
                                 transition: 'all 0.2s ease'
                             }}
                             styles={{ body: { padding: 16 } }}
@@ -96,7 +121,8 @@ const TeamsPanel = ({ teams, selectedTeamId, onTeamSelect, loading }) => {
                                         display: 'block',
                                         whiteSpace: 'nowrap',
                                         overflow: 'hidden',
-                                        textOverflow: 'ellipsis'
+                                        textOverflow: 'ellipsis',
+                                        color: isDark ? '#e6edf3' : undefined,
                                     }}>
                                         {team.name}
                                     </Text>
@@ -121,13 +147,13 @@ const TeamsPanel = ({ teams, selectedTeamId, onTeamSelect, loading }) => {
                             }}>
                                 <Tooltip title="Team Members">
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                        <UserOutlined style={{ color: '#8c8c8c' }} />
+                                        <UserOutlined style={{ color: isDark ? '#8b949e' : '#8c8c8c' }} />
                                         <span>{team.memberCount || team.members?.length || 0}</span>
                                     </div>
                                 </Tooltip>
                                 <Tooltip title="Active Projects">
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                        <ProjectOutlined style={{ color: '#8c8c8c' }} />
+                                        <ProjectOutlined style={{ color: isDark ? '#8b949e' : '#8c8c8c' }} />
                                         <span>{team.stats?.activeProjects || 0}</span>
                                     </div>
                                 </Tooltip>

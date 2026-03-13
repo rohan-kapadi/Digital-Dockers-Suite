@@ -94,7 +94,7 @@ const SubTaskCreationModal = ({ parentTaskId, parentTask, onClose }) => {
           dueDate: formData.dueDate || undefined
         },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          withCredentials: true
         }
       );
 

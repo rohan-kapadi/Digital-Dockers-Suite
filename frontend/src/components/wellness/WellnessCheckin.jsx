@@ -37,7 +37,9 @@ const WellnessCheckin = () => {
                         p: 4,
                         borderRadius: 3,
                         border: isDark ? '1px solid' : 'none',
-                        borderColor: 'divider'
+                        borderColor: 'divider',
+                        bgcolor: isDark ? 'rgba(15, 23, 42, 0.58)' : 'background.paper',
+                        boxShadow: isDark ? '0 12px 28px rgba(2, 6, 23, 0.42)' : 'none'
                     }}
                 >
                     <Typography variant="h6" gutterBottom sx={{ mb: 3, textAlign: 'center' }}>

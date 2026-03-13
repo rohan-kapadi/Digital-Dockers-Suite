@@ -10,15 +10,16 @@ class NotificationEmitter {
   constructor(baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5001') {
     this.baseURL = baseURL;
     this.apiClient = axios.create({
-      baseURL: `${baseURL}/api`
+      baseURL: `${baseURL}/api`,
+      withCredentials: true
     });
   }
 
   /**
-   * Set authorization token
+   * Backwards-compatible no-op. Auth is handled via HttpOnly cookies.
    */
-  setAuthToken(token) {
-    this.apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  setAuthToken() {
+    return;
   }
 
   /**

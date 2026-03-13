@@ -8,7 +8,6 @@ import {
 import { Email, Lock, Visibility, VisibilityOff, ArrowForward } from '@mui/icons-material';
 import { Sparkles, Brain, Zap, Shield, CheckCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
-// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 
 const LoginPage = () => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Segmented, Space, Button } from 'antd';
+import { Segmented, Space } from 'antd';
 import { BgColorsOutlined, TeamOutlined } from '@ant-design/icons';
 import TaskBoard from './TaskBoard';
 import ScrumBoard from './ScrumBoard';
@@ -52,7 +52,8 @@ const TasksPage = () => {
                             ]}
                             style={{
                                 padding: '6px',
-                                backgroundColor: '#f5f5f5',
+                                backgroundColor: 'var(--surface-tertiary, #f5f5f5)',
+                                border: '1px solid var(--border-surface, #dfe1e6)',
                                 borderRadius: '6px',
                             }}
                         />

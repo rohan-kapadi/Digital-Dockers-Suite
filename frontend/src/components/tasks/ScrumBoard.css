@@ -344,3 +344,75 @@
         padding: 10px;
     }
 }
+
+/* ==========================================
+   DARK MODE OVERRIDES – SCRUM BOARD
+   ========================================== */
+
+.dark .scrum-board-container {
+    background: var(--surface-primary, #161b22);
+}
+
+.dark .scrum-board-header {
+    background: var(--surface-secondary, #1c2128);
+    border-color: var(--border-surface, #30363d);
+}
+
+.dark .sprint-selector-section label,
+.dark .sprint-name,
+.dark .column-name,
+.dark .scrum-card-title {
+    color: var(--text-on-surface, #e6edf3);
+}
+
+.dark .sprint-status.status-active {
+    background: rgba(56, 139, 253, 0.16);
+    color: #58a6ff;
+}
+
+.dark .sprint-status.status-planned {
+    background: rgba(63, 185, 80, 0.16);
+    color: #3fb950;
+}
+
+.dark .sprint-status.status-completed {
+    background: rgba(139, 148, 158, 0.16);
+    color: #8b949e;
+}
+
+.dark .sprint-metrics-card,
+.dark .scrum-column,
+.dark .scrum-column-header,
+.dark .scrum-card {
+    background: var(--surface-primary, #161b22);
+    border-color: var(--border-surface, #30363d);
+}
+
+.dark .scrum-column {
+    background: var(--surface-secondary, #1c2128);
+}
+
+.dark .column-count,
+.dark .assignee {
+    background: var(--surface-tertiary, #21262d);
+    color: var(--text-on-surface-secondary, #8b949e);
+}
+
+.dark .scrum-card:hover {
+    border-color: rgba(88, 166, 255, 0.55);
+    box-shadow: var(--shadow-dark-md, 0 4px 12px rgba(0,0,0,0.5));
+}
+
+.dark .scrum-card-footer {
+    border-top-color: var(--border-surface, #30363d);
+}
+
+.dark .sprint-metrics-card .ant-statistic-title,
+.dark .sprint-metrics-card .ant-statistic-content-suffix,
+.dark .scrum-card-footer {
+    color: var(--text-on-surface-secondary, #8b949e);
+}
+
+.dark .sprint-metrics-card .ant-statistic-content {
+    color: var(--text-on-surface, #e6edf3);
+}

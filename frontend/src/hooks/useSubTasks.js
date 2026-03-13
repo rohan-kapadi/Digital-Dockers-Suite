@@ -42,10 +42,6 @@ export const useSubTasks = (parentTaskId) => {
   const [error, setError] = useState(null);
   const abortControllerRef = useRef(null);
 
-  const getAuthHeaders = () => ({
-    Authorization: `Bearer ${localStorage.getItem('token')}`
-  });
-
   const handleError = useCallback((err, defaultMessage) => {
     const message =
       err.response?.data?.message ||
@@ -73,7 +69,7 @@ export const useSubTasks = (parentTaskId) => {
           `/api/work-items/${parentTaskId}/subtasks`,
           {
             params,
-            headers: getAuthHeaders(),
+            withCredentials: true,
             signal: abortControllerRef.current?.signal
           }
         );
@@ -111,7 +107,7 @@ export const useSubTasks = (parentTaskId) => {
       const response = await axios.get(
         `/api/work-items/${parentTaskId}/story-points`,
         {
-          headers: getAuthHeaders(),
+          withCredentials: true,
           signal: abortControllerRef.current?.signal
         }
       );
@@ -139,7 +135,7 @@ export const useSubTasks = (parentTaskId) => {
           `/api/work-items/${childId}/status`,
           { status: newStatus },
           {
-            headers: getAuthHeaders(),
+            withCredentials: true,
             signal: abortControllerRef.current?.signal
           }
         );
@@ -178,7 +174,7 @@ export const useSubTasks = (parentTaskId) => {
           `/api/work-items/${parentTaskId}/subtasks`,
           subtaskData,
           {
-            headers: getAuthHeaders(),
+            withCredentials: true,
             signal: abortControllerRef.current?.signal
           }
         );
@@ -208,7 +204,7 @@ export const useSubTasks = (parentTaskId) => {
         const response = await axios.delete(
           `/api/work-items/${childId}`,
           {
-            headers: getAuthHeaders(),
+            withCredentials: true,
             signal: abortControllerRef.current?.signal
           }
         );
@@ -239,7 +235,7 @@ export const useSubTasks = (parentTaskId) => {
           `/api/work-items/${childId}/move/${newParentId}`,
           {},
           {
-            headers: getAuthHeaders(),
+            withCredentials: true,
             signal: abortControllerRef.current?.signal
           }
         );
@@ -271,7 +267,7 @@ export const useSubTasks = (parentTaskId) => {
           `/api/work-items/${childId}/detach`,
           {},
           {
-            headers: getAuthHeaders(),
+            withCredentials: true,
             signal: abortControllerRef.current?.signal
           }
         );
@@ -302,7 +298,7 @@ export const useSubTasks = (parentTaskId) => {
           `/api/work-items/${parentTaskId}/subtasks/bulk-status`,
           { status: newStatus },
           {
-            headers: getAuthHeaders(),
+            withCredentials: true,
             signal: abortControllerRef.current?.signal
           }
         );

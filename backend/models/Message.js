@@ -3,7 +3,13 @@ const mongoose = require('mongoose');
 const MessageSchema = new mongoose.Schema({
     room: {
         type: String,
-        required: true,
+        index: true,
+        default: 'general'
+    },
+    channel: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Channel',
+        default: null,
         index: true
     },
     sender: {
@@ -14,16 +20,26 @@ const MessageSchema = new mongoose.Schema({
     recipient: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        default: null // null for general/room messages
+        default: null
     },
     message: {
         type: String,
         required: true
     },
-    createdAt: {
+    isEdited: {
+        type: Boolean,
+        default: false
+    },
+    editedAt: {
         type: Date,
-        default: Date.now
+        default: null
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('Message', MessageSchema);

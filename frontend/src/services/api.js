@@ -11,6 +11,15 @@ const api = axios.create({
     withCredentials: true,
 });
 
+const isAuthMeRequest = (requestUrl = '') => {
+    return requestUrl === '/auth/me' || requestUrl.endsWith('/auth/me');
+};
+
+const isPublicPath = (pathname = '') => {
+    const publicRoutes = ['/', '/login', '/register', '/auth/google/callback'];
+    return publicRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+};
+
 // We keep request interceptor for logging or other custom headers, but token is in cookie
 api.interceptors.request.use(
     (config) => {
@@ -25,8 +34,12 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         if (error.response?.status === 401) {
+            const requestUrl = error.config?.url || '';
+            const currentPath = window.location.pathname;
+            const authMeRequest = isAuthMeRequest(requestUrl);
+
             // Prevent infinite loops if the logout route itself returns 401
-            if (error.config.url !== '/auth/logout') {
+            if (!authMeRequest && requestUrl !== '/auth/logout') {
                 try {
                     await axios.post(`${API_BASE_URL}/api/auth/logout`, {}, { withCredentials: true });
                 } catch (e) {
@@ -35,8 +48,8 @@ api.interceptors.response.use(
             }
             localStorage.removeItem('user');
             
-            // Only redirect if not already on login page to prevent looping
-            if (!window.location.pathname.startsWith('/login')) {
+            // Do not force redirect on auth bootstrap (/auth/me) or on public pages.
+            if (!authMeRequest && !isPublicPath(currentPath) && !currentPath.startsWith('/login')) {
                 window.location.href = '/login';
             }
         }

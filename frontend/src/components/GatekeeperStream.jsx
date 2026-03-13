@@ -35,27 +35,25 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
     enableRealtime: true,
   });
 
-  // Analyze all PRs
   const handleAnalyzeAll = async () => {
     if (!repoId || analyzing) return;
     setAnalyzing(true);
     try {
-      await api.post('/tech-debt/analyze-all-prs', { repoId });
+      await api.post("/tech-debt/analyze-all-prs", { repoId });
       await refresh();
     } catch (error) {
-      console.error('Failed to analyze PRs:', error);
+      console.error("Failed to analyze PRs:", error);
     } finally {
       setAnalyzing(false);
     }
   };
 
-  // Analyze single PR
   const handleAnalyzePR = async (prNumber, e) => {
     e.stopPropagation();
     if (!repoId || analyzingPR === prNumber) return;
     setAnalyzingPR(prNumber);
     try {
-      await api.post('/tech-debt/analyze-pr', { repoId, prNumber });
+      await api.post("/tech-debt/analyze-pr", { repoId, prNumber });
       await refresh();
     } catch (error) {
       console.error(`Failed to analyze PR #${prNumber}:`, error);
@@ -64,7 +62,6 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
     }
   };
 
-  // Infinite scroll observer
   const lastPRRef = useCallback(
     (node) => {
       if (loading) return;
@@ -108,7 +105,6 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
       <div
         className={`shadow rounded-lg p-6 h-full flex flex-col transition-colors ${isDarkMode ? "bg-slate-800 border border-slate-700" : "bg-white"}`}
       >
-        {/* Header */}
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2
@@ -142,10 +138,10 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
             </button>
             <button
               onClick={refresh}
-              disabled={loading}
+              disabled={loading || !repoId}
               className={`p-2 rounded-lg transition ${isDarkMode
-                ? "bg-slate-700 hover:bg-slate-600 text-gray-300"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+                ? "bg-slate-700 hover:bg-slate-600 text-gray-300 disabled:bg-slate-800 disabled:text-slate-500"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-600 disabled:bg-gray-200 disabled:text-gray-400"
                 } ${loading ? "animate-spin" : ""}`}
               title="Refresh feed"
             >
@@ -154,9 +150,7 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
           </div>
         </div>
 
-        {/* Search and Filters */}
         <div className="mb-4 space-y-3">
-          {/* Search */}
           <div className="relative">
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -164,14 +158,14 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
               placeholder="Search PRs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              disabled={!repoId}
               className={`w-full pl-10 pr-4 py-2 rounded-lg border ${isDarkMode
-                ? "bg-slate-700 border-slate-600 text-white placeholder-gray-400"
-                : "bg-white border-gray-300 text-gray-900"
+                ? "bg-slate-700 border-slate-600 text-white placeholder-gray-400 disabled:bg-slate-800 disabled:text-slate-500"
+                : "bg-white border-gray-300 text-gray-900 disabled:bg-gray-100 disabled:text-gray-400"
                 } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
             />
           </div>
 
-          {/* Status Filters */}
           <div className="flex items-center gap-2 flex-wrap">
             <FaFilter
               className={`${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
@@ -180,12 +174,13 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
               <button
                 key={status || "all"}
                 onClick={() => setStatusFilter(status)}
+                disabled={!repoId}
                 className={`px-3 py-1 rounded-full text-xs font-semibold transition ${statusFilter === status
                   ? "bg-indigo-600 text-white"
                   : isDarkMode
                     ? "bg-slate-700 text-gray-300 hover:bg-slate-600"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {status || "All"}
               </button>
@@ -193,9 +188,14 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
           </div>
         </div>
 
-        {/* Feed */}
         <div className="flex-1 overflow-y-auto space-y-4">
-          {loading && feed.length === 0 ? (
+          {!repoId ? (
+            <div className="text-center py-10">
+              <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                Connect a repository to view the live Gatekeeper feed.
+              </p>
+            </div>
+          ) : loading && feed.length === 0 ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
               <p
@@ -269,23 +269,22 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
                         Risk
                       </div>
                     </div>
-                    {pr.status === 'PENDING' && (
+                    {pr.status === "PENDING" && (
                       <button
                         onClick={(e) => handleAnalyzePR(pr.prNumber, e)}
                         disabled={analyzingPR === pr.prNumber}
                         className={`px-2 py-1 text-xs rounded flex items-center gap-1 ${analyzingPR === pr.prNumber
-                            ? 'bg-indigo-400 text-white animate-pulse'
-                            : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                          ? "bg-indigo-400 text-white animate-pulse"
+                          : "bg-indigo-600 hover:bg-indigo-500 text-white"
                           }`}
                       >
                         <FaPlay size={8} />
-                        {analyzingPR === pr.prNumber ? 'Analyzing...' : 'Analyze'}
+                        {analyzingPR === pr.prNumber ? "Analyzing..." : "Analyze"}
                       </button>
                     )}
                   </div>
                 </div>
 
-                {/* Analysis Chips */}
                 <div className="flex gap-2 text-xs mt-2 flex-wrap">
                   <span
                     className={`px-2 py-1 rounded ${pr.analysisResults?.lint?.errors > 0
@@ -301,10 +300,7 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
                       : "bg-green-200 text-green-900"
                       }`}
                   >
-                    Compl:{" "}
-                    {pr.analysisResults?.complexity?.healthScoreDelta > 0
-                      ? "+"
-                      : ""}
+                    Compl: {pr.analysisResults?.complexity?.healthScoreDelta > 0 ? "+" : ""}
                     {pr.analysisResults?.complexity?.healthScoreDelta || 0}
                   </span>
                   <span
@@ -317,7 +313,6 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
                   </span>
                 </div>
 
-                {/* AI Summary */}
                 {pr.analysisResults?.aiScan?.findings?.length > 0 && (
                   <div
                     className={`mt-3 p-2 text-xs rounded border flex gap-2 ${isDarkMode
@@ -327,8 +322,7 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
                   >
                     <FaRobot className="flex-shrink-0 text-indigo-400 mt-1" />
                     <div>
-                      {pr.analysisResults.aiScan.findings[0]?.message ||
-                        "Issues found."}
+                      {pr.analysisResults.aiScan.findings[0]?.message || "Issues found."}
                     </div>
                   </div>
                 )}
@@ -344,7 +338,6 @@ const GatekeeperStream = ({ isDarkMode, repoId }) => {
         </div>
       </div>
 
-      {/* PR Detail Modal */}
       {selectedPR && (
         <PRDetailModal
           pr={selectedPR}

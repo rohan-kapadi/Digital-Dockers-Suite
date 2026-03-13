@@ -48,7 +48,7 @@ const SpaceEditor = ({ space, currentUser }) => {
     try {
       const response = await axios.get(
         `/api/spaces/${space._id}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
 
       setContent(response.data.data.content);
@@ -72,7 +72,7 @@ const SpaceEditor = ({ space, currentUser }) => {
           drawingData: content.drawingData,
           mindmapData: content.mindmapData
         },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
 
       setLastSaved(new Date());
@@ -105,7 +105,7 @@ const SpaceEditor = ({ space, currentUser }) => {
           editSummary,
           isMajorVersion: true
         },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
 
       setContent(response.data.data);

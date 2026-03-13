@@ -25,7 +25,6 @@ const FileDetailsModal = ({ file, isOpen, onClose, onCreateTask }) => {
         if (isOpen && file?._id) {
             fetchFileDetails();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, file?._id]);
 
     const fetchFileDetails = async () => {
@@ -95,8 +94,8 @@ const FileDetailsModal = ({ file, isOpen, onClose, onCreateTask }) => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id
-                                    ? "border-indigo-600 text-indigo-600"
-                                    : "border-transparent text-gray-500 hover:text-gray-700"
+                                ? "border-indigo-600 text-indigo-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700"
                                 }`}
                         >
                             <tab.icon size={14} />
@@ -135,10 +134,10 @@ const FileDetailsModal = ({ file, isOpen, onClose, onCreateTask }) => {
                                             <div>
                                                 <span
                                                     className={`inline-block px-3 py-1 rounded-full text-sm font-medium capitalize ${riskCategory === "critical"
-                                                            ? "bg-red-100 text-red-700"
-                                                            : riskCategory === "warning"
-                                                                ? "bg-yellow-100 text-yellow-700"
-                                                                : "bg-green-100 text-green-700"
+                                                        ? "bg-red-100 text-red-700"
+                                                        : riskCategory === "warning"
+                                                            ? "bg-yellow-100 text-yellow-700"
+                                                            : "bg-green-100 text-green-700"
                                                         }`}
                                                 >
                                                     {riskCategory}
@@ -213,10 +212,10 @@ const FileDetailsModal = ({ file, isOpen, onClose, onCreateTask }) => {
                                                     <div
                                                         key={idx}
                                                         className={`p-3 rounded-lg text-sm ${rec.priority === "high"
-                                                                ? "bg-red-50 text-red-700"
-                                                                : rec.priority === "medium"
-                                                                    ? "bg-yellow-50 text-yellow-700"
-                                                                    : "bg-blue-50 text-blue-700"
+                                                            ? "bg-red-50 text-red-700"
+                                                            : rec.priority === "medium"
+                                                                ? "bg-yellow-50 text-yellow-700"
+                                                                : "bg-blue-50 text-blue-700"
                                                             }`}
                                                     >
                                                         <span className="font-medium capitalize">[{rec.type}]</span>{" "}
@@ -247,10 +246,10 @@ const FileDetailsModal = ({ file, isOpen, onClose, onCreateTask }) => {
                                                         <div className="flex items-center gap-3">
                                                             <span
                                                                 className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${fn.complexity > 15
-                                                                        ? "bg-red-100 text-red-700"
-                                                                        : fn.complexity > 10
-                                                                            ? "bg-yellow-100 text-yellow-700"
-                                                                            : "bg-green-100 text-green-700"
+                                                                    ? "bg-red-100 text-red-700"
+                                                                    : fn.complexity > 10
+                                                                        ? "bg-yellow-100 text-yellow-700"
+                                                                        : "bg-green-100 text-green-700"
                                                                     }`}
                                                             >
                                                                 {fn.complexity}

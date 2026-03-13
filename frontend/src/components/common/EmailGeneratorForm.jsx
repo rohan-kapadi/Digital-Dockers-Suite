@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card, Form, Input, Select, Button, message, Typography, Space } from 'antd';
 import { MailOutlined, SendOutlined } from '@ant-design/icons';
 import emailService from '../../services/emailService';
+import { useThemeMode } from '../../context/ThemeContext';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -10,6 +11,8 @@ const { TextArea } = Input;
 const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_EMAIL_WEBHOOK_URL || 'https://rohan-2409.app.n8n.cloud/webhook/auto-send-email';
 
 const EmailGeneratorForm = ({ onEmailSent }) => {
+    const { mode } = useThemeMode();
+    const isDark = mode === 'dark';
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
@@ -71,7 +74,11 @@ const EmailGeneratorForm = ({ onEmailSent }) => {
         <Card
             style={{
                 borderRadius: 12,
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+                boxShadow: isDark
+                    ? '0 6px 20px rgba(0,0,0,0.45)'
+                    : '0 4px 20px rgba(0,0,0,0.08)',
+                borderColor: isDark ? '#30363d' : undefined,
+                background: isDark ? '#161b22' : undefined,
             }}
         >
             <Space direction="vertical" style={{ width: '100%' }} size="large">
@@ -81,11 +88,13 @@ const EmailGeneratorForm = ({ onEmailSent }) => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: 8,
-                        background: 'linear-gradient(135deg, #0052CC, #6554C0)',
+                        background: isDark
+                            ? 'linear-gradient(135deg, #79c0ff, #a371f7)'
+                            : 'linear-gradient(135deg, #0052CC, #6554C0)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent'
                     }}>
-                        <MailOutlined style={{ color: '#0052CC' }} />
+                        <MailOutlined style={{ color: isDark ? '#79c0ff' : '#0052CC' }} />
                         AI Email Generator
                     </Title>
                     <Text type="secondary">
@@ -157,7 +166,9 @@ const EmailGeneratorForm = ({ onEmailSent }) => {
                             size="large"
                             block
                             style={{
-                                background: 'linear-gradient(135deg, #0052CC, #6554C0)',
+                                background: isDark
+                                    ? 'linear-gradient(135deg, #1f6feb, #8957e5)'
+                                    : 'linear-gradient(135deg, #0052CC, #6554C0)',
                                 border: 'none',
                                 height: 48
                             }}

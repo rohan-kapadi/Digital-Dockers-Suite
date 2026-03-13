@@ -46,7 +46,8 @@ export const useRealtimeNotifications = (token) => {
         setError(null);
 
         // Authenticate
-        socket.emit('notification:authenticate', { token }, (response) => {
+        const authPayload = token ? { token } : {};
+        socket.emit('notification:authenticate', authPayload, (response) => {
           if (response.success) {
             console.log('[Notification] Authenticated successfully');
             setUnreadCount(response.unreadCount);
@@ -158,9 +159,9 @@ export const useRealtimeNotifications = (token) => {
     axios.put(
       `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/notifications/${notificationId}/read`,
       {},
-      { headers: { Authorization: `Bearer ${token}` } }
+      { withCredentials: true }
     ).catch(err => console.error('[Notification] Error marking as read:', err));
-  }, [token]);
+  }, []);
 
   /**
    * Mark all notifications as read
@@ -173,9 +174,9 @@ export const useRealtimeNotifications = (token) => {
     axios.put(
       `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/notifications/read/all`,
       {},
-      { headers: { Authorization: `Bearer ${token}` } }
+      { withCredentials: true }
     ).catch(err => console.error('[Notification] Error marking all as read:', err));
-  }, [token]);
+  }, []);
 
   /**
    * Archive notification
@@ -188,9 +189,9 @@ export const useRealtimeNotifications = (token) => {
     axios.put(
       `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/notifications/${notificationId}/archive`,
       {},
-      { headers: { Authorization: `Bearer ${token}` } }
+      { withCredentials: true }
     ).catch(err => console.error('[Notification] Error archiving:', err));
-  }, [token]);
+  }, []);
 
   /**
    * Fetch notifications from API (fallback/initial load)
@@ -201,7 +202,7 @@ export const useRealtimeNotifications = (token) => {
         `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/notifications`,
         {
           params: { page, limit },
-          headers: { Authorization: `Bearer ${token}` }
+          withCredentials: true
         }
       );
       return response.data.data;
@@ -209,7 +210,7 @@ export const useRealtimeNotifications = (token) => {
       console.error('[Notification] Error fetching notifications:', err);
       throw err;
     }
-  }, [token]);
+  }, []);
 
   /**
    * Request notification feed
@@ -240,9 +241,7 @@ export const useRealtimeNotifications = (token) => {
 
   // Connect on mount
   useEffect(() => {
-    if (token) {
-      connect();
-    }
+    connect();
 
     return () => {
       disconnect();

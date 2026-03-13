@@ -3,13 +3,37 @@ const bcrypt = require('bcryptjs');
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 
-// Helper to set cookie
-const setTokenCookie = (res, token) => {
-    res.cookie('token', token, {
+const COOKIE_NAME = 'token';
+const TOKEN_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+const getFrontendUrl = () => process.env.CLIENT_URL || 'http://localhost:5173';
+
+const getTokenCookieOptions = () => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const options = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Supports netlify & localhost
-        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: TOKEN_MAX_AGE_MS,
+        path: '/'
+    };
+
+    if (process.env.COOKIE_DOMAIN) {
+        options.domain = process.env.COOKIE_DOMAIN;
+    }
+
+    return options;
+};
+
+const setTokenCookie = (res, token) => {
+    res.cookie(COOKIE_NAME, token, getTokenCookieOptions());
+};
+
+const clearTokenCookie = (res) => {
+    res.cookie(COOKIE_NAME, '', {
+        ...getTokenCookieOptions(),
+        maxAge: 0,
+        expires: new Date(0)
     });
 };
 
@@ -114,15 +138,8 @@ const googleAuthCallback = asyncHandler(async (req, res) => {
     const token = generateToken(req.user._id);
     setTokenCookie(res, token);
 
-    // Redirect to frontend with token and user data
-    const userData = encodeURIComponent(JSON.stringify({
-        _id: req.user._id,
-        fullName: req.user.fullName,
-        email: req.user.email,
-        role: req.user.role
-    }));
-
-    res.redirect(`http://localhost:5173/auth/google/callback?token=${token}&user=${userData}`);
+    // Redirect without token in URL; frontend will load user via /auth/me using HttpOnly cookie.
+    res.redirect(`${getFrontendUrl()}/auth/google/callback`);
 });
 
 // Generate JWT
@@ -137,13 +154,14 @@ const generateToken = (id) => {
 // @access  Public (but requires valid state token)
 const connectGoogleCalendarCallback = asyncHandler(async (req, res) => {
     const { code, state } = req.query;
+    const frontendUrl = getFrontendUrl();
 
     if (!code) {
-        return res.redirect('http://localhost:5173/dashboard/settings?error=no_code');
+        return res.redirect(`${frontendUrl}/dashboard/settings?error=no_code`);
     }
 
     if (!state) {
-        return res.redirect('http://localhost:5173/dashboard/settings?error=no_state');
+        return res.redirect(`${frontendUrl}/dashboard/settings?error=no_state`);
     }
 
     try {
@@ -158,7 +176,7 @@ const connectGoogleCalendarCallback = asyncHandler(async (req, res) => {
         // Update user with tokens
         const user = await User.findById(userId);
         if (!user) {
-            return res.redirect('http://localhost:5173/dashboard/settings?error=user_not_found');
+            return res.redirect(`${frontendUrl}/dashboard/settings?error=user_not_found`);
         }
 
         user.googleAccessToken = tokens.access_token;
@@ -166,10 +184,10 @@ const connectGoogleCalendarCallback = asyncHandler(async (req, res) => {
         user.googleTokenExpiry = new Date(Date.now() + (tokens.expires_in || 3600) * 1000);
         await user.save();
 
-        res.redirect('http://localhost:5173/dashboard/settings?calendar_connected=true');
+        res.redirect(`${frontendUrl}/dashboard/settings?calendar_connected=true`);
     } catch (error) {
         console.error('Error connecting Google Calendar:', error);
-        res.redirect('http://localhost:5173/dashboard/settings?error=auth_failed');
+        res.redirect(`${frontendUrl}/dashboard/settings?error=auth_failed`);
     }
 });
 
@@ -191,10 +209,7 @@ const disconnectGoogleCalendar = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/logout
 // @access  Public
 const logoutUser = asyncHandler(async (req, res) => {
-    res.cookie('token', '', {
-        httpOnly: true,
-        expires: new Date(0)
-    });
+    clearTokenCookie(res);
     res.status(200).json({ message: 'User logged out' });
 });
 

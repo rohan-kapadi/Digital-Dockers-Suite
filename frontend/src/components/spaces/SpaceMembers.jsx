@@ -20,7 +20,6 @@ const SpaceMembers = ({ space, visible, onClose }) => {
       loadMembers();
       loadUsers();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, space._id]);
 
   const loadMembers = async () => {
@@ -28,7 +27,7 @@ const SpaceMembers = ({ space, visible, onClose }) => {
     try {
       const response = await axios.get(
         `/api/spaces/${space._id}/members`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
       setMembers(response.data.data || []);
     } catch {
@@ -42,7 +41,7 @@ const SpaceMembers = ({ space, visible, onClose }) => {
     try {
       const response = await axios.get(
         '/api/users',
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
       setUsers(response.data.data || []);
     } catch {
@@ -61,7 +60,7 @@ const SpaceMembers = ({ space, visible, onClose }) => {
       await axios.post(
         `/api/spaces/${space._id}/members`,
         { userId: selectedUserId, role: selectedRole },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
 
       loadMembers();
@@ -80,7 +79,7 @@ const SpaceMembers = ({ space, visible, onClose }) => {
       await axios.patch(
         `/api/spaces/${space._id}/members/${memberId}`,
         { role: newRole },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
 
       loadMembers();
@@ -94,7 +93,7 @@ const SpaceMembers = ({ space, visible, onClose }) => {
     try {
       await axios.delete(
         `/api/spaces/${space._id}/members/${memberId}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
 
       loadMembers();

@@ -24,14 +24,6 @@ const PPTGeneratorPage = () => {
         setDownloadSuccess(false);
 
         try {
-            // Get auth token from localStorage
-            const token = localStorage.getItem('token');
-            if (!token) {
-                message.error('Please log in to generate presentations');
-                setLoading(false);
-                return;
-            }
-
             // Progress simulation (since we can't track actual progress)
             const progressInterval = setInterval(() => {
                 setProgress(prev => {
@@ -63,9 +55,9 @@ const PPTGeneratorPage = () => {
                 },
                 {
                     headers: {
-                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
+                    withCredentials: true,
                     responseType: 'blob',
                     timeout: 180000 // 3 minute timeout
                 }

@@ -56,6 +56,15 @@ export const useGatekeeperFeed = (options = {}) => {
   });
 
   const fetchGatekeeperFeed = useCallback(async (pageNum = 1, isLoadMore = false) => {
+    if (!filters.repoId) {
+      setFeed([]);
+      setHasMore(false);
+      setStats({ total: 0, passCount: 0, blockCount: 0, passRate: 0 });
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -108,6 +117,15 @@ export const useGatekeeperFeed = (options = {}) => {
 
   // Initial fetch
   useEffect(() => {
+    if (!filters.repoId) {
+      setFeed([]);
+      setHasMore(false);
+      setPage(1);
+      setStats({ total: 0, passCount: 0, blockCount: 0, passRate: 0 });
+      setLoading(false);
+      return;
+    }
+
     setPage(1);
     fetchGatekeeperFeed(1, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -124,9 +142,17 @@ export const useGatekeeperFeed = (options = {}) => {
 
   // Manual refresh function
   const refresh = useCallback(() => {
+    if (!filters.repoId) {
+      setFeed([]);
+      setHasMore(false);
+      setPage(1);
+      setStats({ total: 0, passCount: 0, blockCount: 0, passRate: 0 });
+      return;
+    }
+
     setPage(1);
     fetchGatekeeperFeed(1, false);
-  }, [fetchGatekeeperFeed]);
+  }, [fetchGatekeeperFeed, filters.repoId]);
 
   return {
     feed,

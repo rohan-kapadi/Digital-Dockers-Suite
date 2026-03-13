@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Dropdown, Button, Card, Tag, Empty, Space, List, Badge, Tooltip } from 'antd';
+import { Dropdown, Button, Tag, Empty, List, Badge, Tooltip } from 'antd';
 import { CalendarOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
@@ -122,16 +122,16 @@ const HeaderCalendarDropdown = () => {
                         dataSource={todayWorkItems}
                         renderItem={(item) => (
                             <List.Item
-                                style={{ padding: '6px 8px', fontSize: '12px' }}
+                                className="calendar-work-item"
                                 onClick={() => navigate('/dashboard/work-planner')}
                             >
                                 <Tooltip title={item.title}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%' }}>
+                                    <div className="calendar-work-row">
                                         <span className="status-icon">{getStatusIcon(item.status)}</span>
-                                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        <span className="calendar-work-title">
                                             {item.title}
                                         </span>
-                                        <Tag color={getPriorityColor(item.priority)} style={{ fontSize: '10px', margin: 0 }}>
+                                        <Tag color={getPriorityColor(item.priority)} className="calendar-priority-tag">
                                             {item.priority}
                                         </Tag>
                                     </div>
@@ -156,15 +156,15 @@ const HeaderCalendarDropdown = () => {
                         dataSource={upcomingWorkItems}
                         renderItem={(item) => (
                             <List.Item
-                                style={{ padding: '6px 8px', fontSize: '11px' }}
+                                className="calendar-work-item compact"
                                 onClick={() => navigate('/dashboard/work-planner')}
                             >
                                 <Tooltip title={`${item.date.format('MMM DD')} - ${item.title}`}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%' }}>
-                                        <Tag color="blue" style={{ fontSize: '10px', margin: 0, minWidth: '50px' }}>
+                                    <div className="calendar-work-row">
+                                        <Tag color="blue" className="calendar-date-tag">
                                             {item.date.format('MMM DD')}
                                         </Tag>
-                                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        <span className="calendar-work-title">
                                             {item.title}
                                         </span>
                                     </div>
@@ -199,28 +199,9 @@ const HeaderCalendarDropdown = () => {
         >
             <Button
                 type="text"
-                icon={<CalendarOutlined style={{ fontSize: '18px' }} />}
+                icon={<CalendarOutlined className="header-calendar-trigger-icon" />}
                 title="Work Planner"
-                style={{
-                    height: '40px',
-                    width: '40px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '6px',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    color: '#262626'
-                }}
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(24, 144, 255, 0.08)';
-                    e.currentTarget.style.color = '#1890ff';
-                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(24, 144, 255, 0.12)';
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = '#262626';
-                    e.currentTarget.style.boxShadow = 'none';
-                }}
+                className="header-calendar-trigger"
             >
                 {todayWorkItems.length > 0 && (
                     <Badge

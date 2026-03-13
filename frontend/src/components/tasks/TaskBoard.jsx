@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Card, Typography, Tag, Avatar, Space, Button, Empty, message, Select, Segmented, Grid, Tooltip, Input, Progress, Dropdown, Badge } from 'antd';
 import { ClockCircleOutlined, FilterOutlined, DownloadOutlined, PlusOutlined } from '@ant-design/icons';
 import { useProject } from '../../context/ProjectContext';
+import { useThemeMode } from '../../context/ThemeContext';
 import taskService from '../../services/taskService';
 import IssueDetailDrawer from '../work/IssueDetailDrawer';
 import CreateIssueModal from './CreateIssueModal';
@@ -10,15 +11,10 @@ import './TaskBoard.css';
 
 const { Text, Title } = Typography;
 
-const COLUMNS = {
-    'todo': { title: 'Backlog', status: 'todo', color: '#f8f9fa', headerColor: '#626f86', bgColor: '#fafbfc' },
-    'in_progress': { title: 'In Progress', status: 'in_progress', color: '#f8f9fa', headerColor: '#0052cc', bgColor: '#deebff' },
-    'review': { title: 'In Review', status: 'review', color: '#f8f9fa', headerColor: '#ae2a19', bgColor: '#ffeceb' },
-    'done': { title: 'Done', status: 'done', color: '#f8f9fa', headerColor: '#216e4e', bgColor: '#dffcf0' }
-};
-
 const TaskBoard = () => {
     const { currentProject, activeSprint } = useProject();
+    const { mode } = useThemeMode();
+    const isDark = mode === 'dark';
     const [selectedIssue, setSelectedIssue] = useState(null);
     const [boardData, setBoardData] = useState({});
     const [searchFilter, setSearchFilter] = useState('');
@@ -29,6 +25,37 @@ const TaskBoard = () => {
     const isMobile = !screens.md;
     const [mobileStatusFilter, setMobileStatusFilter] = useState('todo');
     const [createModalOpen, setCreateModalOpen] = useState(false);
+
+    const COLUMNS = {
+        todo: {
+            title: 'Backlog',
+            status: 'todo',
+            color: isDark ? '#1c2128' : '#f8f9fa',
+            dragColor: isDark ? 'rgba(56, 139, 253, 0.14)' : '#deebff',
+            headerColor: isDark ? '#8b949e' : '#626f86',
+        },
+        in_progress: {
+            title: 'In Progress',
+            status: 'in_progress',
+            color: isDark ? '#1c2128' : '#f8f9fa',
+            dragColor: isDark ? 'rgba(56, 139, 253, 0.14)' : '#deebff',
+            headerColor: isDark ? '#58a6ff' : '#0052cc',
+        },
+        review: {
+            title: 'In Review',
+            status: 'review',
+            color: isDark ? '#1c2128' : '#f8f9fa',
+            dragColor: isDark ? 'rgba(240, 136, 62, 0.16)' : '#ffeceb',
+            headerColor: isDark ? '#f0883e' : '#ae2a19',
+        },
+        done: {
+            title: 'Done',
+            status: 'done',
+            color: isDark ? '#1c2128' : '#f8f9fa',
+            dragColor: isDark ? 'rgba(63, 185, 80, 0.16)' : '#dffcf0',
+            headerColor: isDark ? '#3fb950' : '#216e4e',
+        },
+    };
 
     useEffect(() => {
         if (currentProject && activeSprint) {
@@ -251,7 +278,9 @@ const TaskBoard = () => {
                                                 ref={provided.innerRef}
                                                 className={`column-tasks ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
                                                 style={{
-                                                    backgroundColor: COLUMNS[columnId].color,
+                                                    backgroundColor: snapshot.isDraggingOver
+                                                        ? COLUMNS[columnId].dragColor
+                                                        : COLUMNS[columnId].color,
                                                 }}
                                             >
                                                 {filteredIssues.map((issue, index) => (
@@ -350,8 +379,8 @@ const KanbanCard = ({ issue, isDragging }) => {
                             key={idx} 
                             style={{ 
                                 fontSize: 10, 
-                                backgroundColor: '#DCDCDC', 
-                                color: '#262626',
+                                backgroundColor: 'var(--surface-tertiary, #DCDCDC)', 
+                                color: 'var(--text-on-surface, #262626)',
                                 border: 'none'
                             }}
                         >

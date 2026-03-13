@@ -3,11 +3,14 @@ import { Typography, Row, Col, Card, Table, Tag, Tooltip } from 'antd';
 import { MailOutlined, HistoryOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import EmailGeneratorForm from '../../components/common/EmailGeneratorForm';
 import emailService from '../../services/emailService';
+import { useThemeMode } from '../../context/ThemeContext';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 
 const EmailGeneratorPage = () => {
+    const { mode } = useThemeMode();
+    const isDark = mode === 'dark';
     const [sentEmails, setSentEmails] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -51,28 +54,29 @@ const EmailGeneratorPage = () => {
             render: (date) => (
                 <div style={{ fontSize: 13 }}>
                     <div>{dayjs(date).format('D MMM YYYY')}</div>
-                    <div style={{ color: '#888' }}>{dayjs(date).format('h:mm A')}</div>
+                    <div style={{ color: isDark ? '#8b949e' : '#888' }}>{dayjs(date).format('h:mm A')}</div>
                 </div>
             )
         }
     ];
 
     return (
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', color: isDark ? '#e6edf3' : undefined }}>
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
                 <Title level={2} style={{
                     margin: 0,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 12
+                    gap: 12,
+                    color: isDark ? '#e6edf3' : undefined,
                 }}>
                     <span style={{
                         display: 'flex',
                         padding: 8,
-                        background: 'rgba(0, 82, 204, 0.1)',
+                        background: isDark ? 'rgba(47, 129, 247, 0.16)' : 'rgba(0, 82, 204, 0.1)',
                         borderRadius: 8,
-                        color: '#0052CC'
+                        color: isDark ? '#79c0ff' : '#0052CC'
                     }}>
                         <MailOutlined />
                     </span>
@@ -90,7 +94,14 @@ const EmailGeneratorPage = () => {
                     {/* Recent Sent Emails Panel */}
                     <Card
                         title={<><HistoryOutlined /> Recent Sent Emails</>}
-                        style={{ marginTop: 24, borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
+                        style={{
+                            marginTop: 24,
+                            borderRadius: 12,
+                            boxShadow: isDark
+                                ? '0 6px 20px rgba(0,0,0,0.45)'
+                                : '0 4px 20px rgba(0,0,0,0.05)',
+                            borderColor: isDark ? '#30363d' : undefined,
+                        }}
                         styles={{ body: { padding: 0 } }}
                     >
                         <Table
@@ -107,24 +118,27 @@ const EmailGeneratorPage = () => {
                 <Col xs={24} lg={10}>
                     {/* Instructions / Tips Panel */}
                     <div style={{
-                        background: 'linear-gradient(135deg, #f0f5ff 0%, #f6ffed 100%)',
+                        background: isDark
+                            ? 'linear-gradient(135deg, #161b22 0%, #1f2a33 100%)'
+                            : 'linear-gradient(135deg, #f0f5ff 0%, #f6ffed 100%)',
                         padding: 24,
                         borderRadius: 12,
-                        minHeight: 400
+                        minHeight: 400,
+                        border: isDark ? '1px solid #30363d' : '1px solid rgba(0,0,0,0.05)',
                     }}>
-                        <Title level={4} style={{ marginTop: 0 }}>💡 Pro Tips</Title>
+                        <Title level={4} style={{ marginTop: 0, color: isDark ? '#e6edf3' : undefined }}>💡 Pro Tips</Title>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                             <div>
                                 <Text strong>🎯 Be Specific</Text>
-                                <p style={{ color: '#666', margin: '4px 0 0' }}>
+                                <p style={{ color: isDark ? '#8b949e' : '#666', margin: '4px 0 0' }}>
                                     Include key details like dates, names, and specific outcomes you want.
                                 </p>
                             </div>
 
                             <div>
                                 <Text strong>🎭 Choose the Right Tone</Text>
-                                <p style={{ color: '#666', margin: '4px 0 0' }}>
+                                <p style={{ color: isDark ? '#8b949e' : '#666', margin: '4px 0 0' }}>
                                     - <b>Professional:</b> For formal business requests<br />
                                     - <b>Friendly:</b> For team updates or casual check-ins<br />
                                     - <b>Persuasive:</b> When asking for approvals or resources
@@ -134,22 +148,24 @@ const EmailGeneratorPage = () => {
                             <div>
                                 <Text strong>⚡ Example Prompts</Text>
                                 <div style={{
-                                    background: 'rgba(255,255,255,0.6)',
+                                    background: isDark ? 'rgba(33, 38, 45, 0.8)' : 'rgba(255,255,255,0.6)',
                                     padding: 12,
                                     borderRadius: 8,
                                     marginTop: 8,
                                     fontSize: 13,
-                                    border: '1px solid rgba(0,0,0,0.05)'
+                                    border: `1px solid ${isDark ? '#30363d' : 'rgba(0,0,0,0.05)'}`,
+                                    color: isDark ? '#e6edf3' : undefined,
                                 }}>
                                     "Write a follow-up email to the client regarding the Q1 marketing report sent last Tuesday."
                                 </div>
                                 <div style={{
-                                    background: 'rgba(255,255,255,0.6)',
+                                    background: isDark ? 'rgba(33, 38, 45, 0.8)' : 'rgba(255,255,255,0.6)',
                                     padding: 12,
                                     borderRadius: 8,
                                     marginTop: 8,
                                     fontSize: 13,
-                                    border: '1px solid rgba(0,0,0,0.05)'
+                                    border: `1px solid ${isDark ? '#30363d' : 'rgba(0,0,0,0.05)'}`,
+                                    color: isDark ? '#e6edf3' : undefined,
                                 }}>
                                     "Draft a polite decline for the invitation to speak at the upcoming conference due to schedule conflicts."
                                 </div>

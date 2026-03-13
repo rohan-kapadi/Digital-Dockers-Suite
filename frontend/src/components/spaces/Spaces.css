@@ -198,6 +198,65 @@
   font-weight: 500;
 }
 
+/* Dark Mode */
+.dark .spaces-container {
+  background: var(--surface-primary, #161b22);
+}
+
+.dark .spaces-header h2,
+.dark .toolbar-left h3,
+.dark .editor-sidebar h4,
+.dark .space-comments h4 {
+  color: var(--text-on-surface, #e6edf3);
+}
+
+.dark .space-card,
+.dark .space-editor,
+.dark .editor-sidebar {
+  background: var(--surface-secondary, #1c2128);
+  border: 1px solid var(--border-surface, #30363d);
+}
+
+.dark .space-card:hover {
+  box-shadow: var(--shadow-dark-md, 0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+.dark .space-card-header h3 {
+  color: #58a6ff;
+}
+
+.dark .space-description,
+.dark .space-meta,
+.dark .last-saved,
+.dark .collaborators {
+  color: var(--text-on-surface-secondary, #8b949e);
+}
+
+.dark .space-meta,
+.dark .editor-toolbar,
+.dark .editor-sidebar,
+.dark .typing-indicator {
+  border-color: var(--border-surface, #30363d);
+}
+
+.dark .editor-toolbar,
+.dark .typing-indicator {
+  background: var(--surface-tertiary, #21262d);
+}
+
+.dark .editor-content {
+  background: var(--surface-primary, #161b22);
+  color: var(--text-on-surface, #e6edf3);
+}
+
+.dark .connection-status {
+  color: #3fb950;
+}
+
+.dark .connection-status.offline {
+  color: var(--text-on-surface-secondary, #8b949e);
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
   .editor-sidebar {

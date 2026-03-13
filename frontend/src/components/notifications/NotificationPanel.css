@@ -24,11 +24,11 @@
 }
 
 /* Notification Dropdown */
-:global(.notification-dropdown) {
+.notification-dropdown {
   min-width: 400px !important;
 }
 
-:global(.notification-dropdown .ant-dropdown-placement-bottomRight) {
+.notification-dropdown.ant-dropdown-placement-bottomRight {
   margin-top: 8px;
 }
 
@@ -250,7 +250,7 @@
 }
 
 /* Badge Styling */
-:global(.ant-badge-count) {
+.ant-badge .notification-button + .ant-badge-count {
   font-size: 10px;
   height: 18px;
   line-height: 18px;
@@ -260,7 +260,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  :global(.notification-dropdown) {
+  .notification-dropdown {
     min-width: 300px !important;
   }
 
@@ -287,7 +287,7 @@
 }
 
 @media (max-width: 480px) {
-  :global(.notification-dropdown) {
+  .notification-dropdown {
     min-width: 280px !important;
   }
 
@@ -366,4 +366,96 @@
   .notification-footer {
     background: #262626;
   }
+}
+
+.dark .notification-panel {
+  background: var(--surface-primary);
+  border: 1px solid var(--border-surface);
+  box-shadow: var(--shadow-dark-md);
+}
+
+.dark .notification-header-bar {
+  background: linear-gradient(135deg, var(--surface-secondary) 0%, var(--surface-primary) 100%);
+}
+
+.dark .notification-header-bar h3 {
+  color: var(--text-on-surface);
+}
+
+.dark .notification-header-bar button {
+  color: var(--text-on-surface-secondary);
+}
+
+.dark .notification-header-bar button:hover {
+  color: #bfdbfe;
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.dark .notification-list::-webkit-scrollbar-track {
+  background: var(--surface-secondary);
+}
+
+.dark .notification-list::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark .notification-list::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+.dark .notification-item {
+  border-bottom-color: var(--border-surface);
+}
+
+.dark .notification-item:hover {
+  background-color: var(--surface-secondary);
+}
+
+.dark .notification-item.unread {
+  background-color: rgba(59, 130, 246, 0.16);
+  border-left-color: #3b82f6;
+}
+
+.dark .notification-item.unread:hover {
+  background-color: rgba(59, 130, 246, 0.24);
+}
+
+.dark .notification-title {
+  color: var(--text-on-surface);
+}
+
+.dark .notification-description,
+.dark .notification-meta,
+.dark .sender-name {
+  color: var(--text-on-surface-secondary);
+}
+
+.dark .timestamp {
+  color: #64748b;
+}
+
+.dark .entity-key {
+  background: rgba(148, 163, 184, 0.16);
+  color: #cbd5e1;
+}
+
+.dark .notification-error {
+  background: rgba(250, 173, 20, 0.12);
+  color: #f59e0b;
+}
+
+.dark .notification-error .small-text {
+  color: #fcd34d;
+}
+
+.dark .notification-footer {
+  background: var(--surface-secondary);
+}
+
+.dark .notification-footer button {
+  color: #93c5fd;
+}
+
+.dark .notification-footer button:hover {
+  color: #bfdbfe;
 }

@@ -19,8 +19,8 @@ const NotesEditor = ({
   const [text, setText] = useState(content?.textContent || '');
   const [isEditing, setIsEditing] = useState(false);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setText(content?.textContent || '');
   }, [content]);
 

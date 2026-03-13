@@ -9,7 +9,6 @@ import {
 import { Email, Lock, Person, Visibility, VisibilityOff, Work, Business, ArrowForward } from '@mui/icons-material';
 import { Sparkles, Users, BarChart3, Layers, Globe } from 'lucide-react';
 import { toast } from 'react-toastify';
-// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 
 const RegisterPage = () => {

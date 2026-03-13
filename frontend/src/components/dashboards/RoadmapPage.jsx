@@ -42,7 +42,6 @@ const RoadmapPage = () => {
         // Load monthly progress data
         const data = generateMonthlyProgressData();
         setMonthlyData(data);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentProject]);
 
     // Handle create epic
@@ -67,7 +66,7 @@ const RoadmapPage = () => {
         try {
             // Mock AI response - replace with real OpenAI API call in Phase 2
             const aiGeneratedEpics = generateMockAIEpics();
-            
+
             // Add AI-generated epics to the list
             for (const epicData of aiGeneratedEpics) {
                 try {

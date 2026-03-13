@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 import { Box, CircularProgress, Typography } from '@mui/material';
 
 const GoogleCallback = () => {
@@ -9,23 +10,31 @@ const GoogleCallback = () => {
     const { setUserFromGoogle } = useAuth();
 
     useEffect(() => {
-        const token = searchParams.get('token');
         const userStr = searchParams.get('user');
 
-        if (token && userStr) {
+        const completeGoogleLogin = async () => {
             try {
-                const user = JSON.parse(decodeURIComponent(userStr));
-                localStorage.setItem('token', token);
+                if (userStr) {
+                    const user = JSON.parse(decodeURIComponent(userStr));
+                    localStorage.removeItem('token');
+                    localStorage.setItem('user', JSON.stringify(user));
+                    setUserFromGoogle(user);
+                    navigate('/dashboard', { replace: true });
+                    return;
+                }
+
+                const { data: user } = await api.get('/auth/me');
+                localStorage.removeItem('token');
                 localStorage.setItem('user', JSON.stringify(user));
                 setUserFromGoogle(user);
-                navigate('/dashboard');
+                navigate('/dashboard', { replace: true });
             } catch (error) {
-                console.error('Error parsing user data:', error);
-                navigate('/login');
+                console.error('Google login callback failed:', error);
+                navigate('/login', { replace: true });
             }
-        } else {
-            navigate('/login');
-        }
+        };
+
+        completeGoogleLogin();
     }, [searchParams, navigate, setUserFromGoogle]);
 
     return (

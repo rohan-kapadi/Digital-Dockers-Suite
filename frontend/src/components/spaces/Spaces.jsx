@@ -17,7 +17,7 @@ const Spaces = () => {
   const { user } = useAuth();
   const projectId = currentProject?._id;
   const currentUser = user;
-  
+
   const [spaces, setSpaces] = useState([]);
   const [selectedSpace, setSelectedSpace] = useState(null);
   const [activeTab, setActiveTab] = useState('list');
@@ -29,7 +29,6 @@ const Spaces = () => {
   // Load spaces on mount
   useEffect(() => {
     loadSpaces();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   const loadSpaces = async () => {
@@ -37,7 +36,7 @@ const Spaces = () => {
     try {
       const response = await axios.get(
         `/api/spaces/project/${projectId}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
       setSpaces(response.data.data || []);
     } catch (error) {
@@ -53,7 +52,7 @@ const Spaces = () => {
       message.error('Please select a project first');
       return;
     }
-    
+
     if (!currentUser) {
       message.error('Please log in first');
       return;
@@ -66,9 +65,9 @@ const Spaces = () => {
           projectId,
           ...values
         },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
-      
+
       setSpaces([response.data.data, ...spaces]);
       setCreateModalVisible(false);
       form.resetFields();
@@ -83,9 +82,9 @@ const Spaces = () => {
     try {
       await axios.delete(
         `/api/spaces/${spaceId}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
-      
+
       setSpaces(spaces.filter(s => s._id !== spaceId));
       if (selectedSpace?._id === spaceId) {
         setSelectedSpace(null);
@@ -156,11 +155,11 @@ const Spaces = () => {
                   </Popconfirm>
                 </Space>
               </div>
-              
+
               {space.description && (
                 <p className="space-description">{space.description}</p>
               )}
-              
+
               <div className="space-meta">
                 <span>📝 {space.defaultContentType}</span>
                 <span>✏️ v{space.versionCount || 1}</span>

@@ -21,7 +21,7 @@ const TypesOfWorkCard = ({ projectId, onTypeClick }) => {
             try {
                 setLoading(true);
                 const response = await axios.get(`/api/projects/${projectId}/work-types`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                    withCredentials: true
                 });
                 setWorkTypes(response.data);
                 setError(null);

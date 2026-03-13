@@ -3,6 +3,7 @@ import { Dropdown, Badge, List, Avatar, Typography, Button, Empty, Spin } from '
 import { BellOutlined, CheckOutlined } from '@ant-design/icons';
 import activityService from '../../services/activityService';
 import { formatDistanceToNow } from 'date-fns';
+import './NotificationsDropdown.css';
 
 const { Text } = Typography;
 
@@ -64,21 +65,8 @@ const NotificationsDropdown = () => {
     };
 
     const dropdownContent = (
-        <div style={{
-            width: 360,
-            maxHeight: 400,
-            overflow: 'auto',
-            backgroundColor: '#fff',
-            borderRadius: 8,
-            boxShadow: '0 6px 16px rgba(0,0,0,0.12)'
-        }}>
-            <div style={{
-                padding: '12px 16px',
-                borderBottom: '1px solid #f0f0f0',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-            }}>
+        <div className="notifications-dropdown">
+            <div className="notifications-dropdown-header">
                 <Text strong>Notifications</Text>
                 {unreadCount > 0 && (
                     <Button
@@ -86,6 +74,7 @@ const NotificationsDropdown = () => {
                         size="small"
                         icon={<CheckOutlined />}
                         onClick={handleMarkAllRead}
+                        className="notifications-mark-all-btn"
                     >
                         Mark all read
                     </Button>
@@ -93,7 +82,7 @@ const NotificationsDropdown = () => {
             </div>
 
             {loading ? (
-                <div style={{ padding: 40, textAlign: 'center' }}>
+                <div className="notifications-loading-state">
                     <Spin />
                 </div>
             ) : notifications.length > 0 ? (
@@ -101,21 +90,17 @@ const NotificationsDropdown = () => {
                     dataSource={notifications}
                     renderItem={(item) => (
                         <List.Item
-                            style={{
-                                padding: '12px 16px',
-                                backgroundColor: item.isRead ? '#fff' : '#f6f8fa',
-                                cursor: 'pointer'
-                            }}
+                            className={`notifications-list-item ${item.isRead ? '' : 'unread'}`}
                         >
                             <List.Item.Meta
                                 avatar={
-                                    <Avatar style={{ backgroundColor: '#0052cc' }}>
+                                    <Avatar className="notifications-avatar">
                                         {item.actor?.fullName?.[0] || '?'}
                                     </Avatar>
                                 }
-                                title={<Text style={{ fontSize: 13 }}>{item.message}</Text>}
+                                title={<Text className="notifications-item-message">{item.message}</Text>}
                                 description={
-                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                    <Text type="secondary" className="notifications-item-time">
                                         {formatTimeAgo(item.createdAt)}
                                     </Text>
                                 }
@@ -142,7 +127,7 @@ const NotificationsDropdown = () => {
             placement="bottomRight"
         >
             <Badge count={unreadCount} size="small">
-                <BellOutlined style={{ fontSize: 20, cursor: 'pointer', color: '#6B778C' }} />
+                <BellOutlined className="notifications-trigger-icon" />
             </Badge>
         </Dropdown>
     );

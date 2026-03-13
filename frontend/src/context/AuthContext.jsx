@@ -38,7 +38,8 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             const res = await api.post('/auth/login', { email, password });
-            const { token, ...userData } = res.data;
+            const userData = { ...res.data };
+            delete userData.token;
             // Token is handled via HttpOnly cookie
             localStorage.setItem('user', JSON.stringify(userData)); // Save user data
             setUser(userData);
@@ -51,7 +52,8 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             const res = await api.post('/auth/register', userData);
-            const { token, ...user } = res.data;
+            const user = { ...res.data };
+            delete user.token;
             // Token is handled via HttpOnly cookie
             localStorage.setItem('user', JSON.stringify(user)); // Save user data
             setUser(user);
@@ -67,11 +69,14 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('Logout error', error);
         }
+        localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
     };
 
     const setUserFromGoogle = useCallback((userData) => {
+        localStorage.removeItem('token');
+        localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
     }, []);
 

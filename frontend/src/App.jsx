@@ -50,6 +50,19 @@ const ProtectedRoute = ({ children, roles = [] }) => {
   return children;
 };
 
+// Public Route Wrapper (redirect logged-in users to dashboard)
+const PublicRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) return <div>Loading...</div>;
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
 function App() {
   return (
     <ThemeProvider>
@@ -60,9 +73,9 @@ function App() {
             <Router>
               <Routes>
                 {/* Public Routes */}
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+                <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+                <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
                 <Route path="/auth/google/callback" element={<GoogleCallback />} />
 
                 {/* Protected Dashboard Routes */}

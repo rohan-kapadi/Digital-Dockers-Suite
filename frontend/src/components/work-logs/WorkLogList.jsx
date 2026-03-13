@@ -56,13 +56,7 @@ const WorkLogList = ({ logs = [], onDeleted }) => {
   return (
     <div className="work-log-list">
       {error && (
-        <div style={{
-          padding: '12px',
-          background: '#fee2e2',
-          color: '#991b1b',
-          borderBottom: '1px solid #fecaca',
-          fontSize: '12px'
-        }}>
+        <div className="work-log-alert work-log-alert-error work-log-alert-compact">
           {error}
         </div>
       )}
@@ -78,15 +72,7 @@ const WorkLogList = ({ logs = [], onDeleted }) => {
                 {log.logType === 'TIMER' ? 'Timer' : 'Manual'}
               </span>
               {!log.billable && (
-                <span style={{
-                  display: 'inline-block',
-                  padding: '2px 8px',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  background: '#f3f4f6',
-                  color: '#6b7280'
-                }}>
+                <span className="work-log-chip work-log-chip-non-billable">
                   Non-billable
                 </span>
               )}
@@ -106,14 +92,7 @@ const WorkLogList = ({ logs = [], onDeleted }) => {
                 📅 {formatDateTime(log.createdAt)}
               </span>
               {log.status && log.status !== 'STOPPED' && (
-                <span style={{
-                  padding: '2px 6px',
-                  borderRadius: '3px',
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  background: log.status === 'APPROVED' ? '#dbeafe' : '#fef3c7',
-                  color: log.status === 'APPROVED' ? '#0369a1' : '#b45309'
-                }}>
+                <span className={`work-log-chip work-log-chip-status ${log.status === 'APPROVED' ? 'approved' : 'pending'}`}>
                   {log.status}
                 </span>
               )}

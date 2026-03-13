@@ -148,6 +148,37 @@
   flex-wrap: wrap;
 }
 
+.work-log-alert {
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.work-log-alert-compact {
+  margin-bottom: 0;
+  border-radius: 0;
+  border-bottom: 1px solid;
+  font-size: 12px;
+}
+
+.work-log-alert-error {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.work-log-empty-state,
+.work-log-loading-state {
+  text-align: center;
+  padding: 24px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
 .work-log-btn {
   padding: 8px 16px;
   border-radius: 6px;
@@ -159,6 +190,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.work-log-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .work-log-btn.start-timer {
@@ -259,6 +297,34 @@
   margin-left: 8px;
 }
 
+.work-log-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.work-log-chip-non-billable {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.work-log-chip-status {
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.work-log-chip-status.approved {
+  background: #dbeafe;
+  color: #0369a1;
+}
+
+.work-log-chip-status.pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
 .work-log-item-type.timer {
   background: #dbeafe;
   color: #0369a1;
@@ -298,6 +364,11 @@
   padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.2s ease;
+}
+
+.work-log-item-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .work-log-item-action-btn:hover {
@@ -403,6 +474,20 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+.manual-log-billable-wrap {
+  display: flex;
+  align-items: center;
+  margin-top: 22px;
+}
+
+.manual-log-billable-checkbox {
+  margin-right: 8px;
+}
+
+.manual-log-billable-label {
+  margin: 0;
 }
 
 .manual-log-modal-actions {
@@ -612,4 +697,108 @@
   .time-summary-user-item {
     background: #1f2937;
   }
+}
+
+.dark .work-log-panel {
+  background: var(--surface-secondary);
+  border: 1px solid var(--border-surface);
+}
+
+.dark .work-log-panel-title,
+.dark .work-log-item-duration,
+.dark .time-summary-title,
+.dark .time-summary-stat-value,
+.dark .time-summary-user-name {
+  color: var(--text-on-surface);
+}
+
+.dark .work-log-alert-error {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fecaca;
+}
+
+.dark .work-log-list,
+.dark .time-summary,
+.dark .manual-log-modal-content {
+  background: var(--surface-primary);
+  border-color: var(--border-surface);
+  color: var(--text-on-surface);
+}
+
+.dark .work-log-item {
+  border-color: var(--border-surface);
+}
+
+.dark .work-log-item:hover,
+.dark .time-summary-stat,
+.dark .time-summary-user-item,
+.dark .work-log-empty-state,
+.dark .work-log-loading-state {
+  background: var(--surface-secondary);
+}
+
+.dark .work-log-item-user,
+.dark .work-log-item-description,
+.dark .work-log-item-meta,
+.dark .time-summary-stat-label,
+.dark .time-summary-by-user-title,
+.dark .manual-log-form-label,
+.dark .work-log-empty-state,
+.dark .work-log-loading-state,
+.dark .manual-log-modal-close {
+  color: var(--text-on-surface-secondary);
+}
+
+.dark .manual-log-form-input,
+.dark .manual-log-form-textarea {
+  background: var(--surface-secondary);
+  border-color: var(--border-surface);
+  color: var(--text-on-surface);
+}
+
+.dark .manual-log-form-input:focus,
+.dark .manual-log-form-textarea:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+}
+
+.dark .manual-log-modal-close:hover {
+  color: var(--text-on-surface);
+}
+
+.dark .manual-log-modal-btn.secondary,
+.dark .work-log-btn.secondary {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.dark .manual-log-modal-btn.secondary:hover,
+.dark .work-log-btn.secondary:hover {
+  background: #475569;
+}
+
+.dark .work-log-chip-non-billable {
+  background: rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+}
+
+.dark .work-log-chip-status.approved {
+  background: rgba(14, 116, 144, 0.3);
+  color: #67e8f9;
+}
+
+.dark .work-log-chip-status.pending {
+  background: rgba(202, 138, 4, 0.24);
+  color: #fcd34d;
+}
+
+.dark .work-log-item-action-btn:hover {
+  background: rgba(59, 130, 246, 0.18);
+  color: #bfdbfe;
+}
+
+.dark .work-log-item-action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
 }

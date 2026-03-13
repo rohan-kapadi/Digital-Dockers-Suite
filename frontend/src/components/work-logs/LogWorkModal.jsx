@@ -92,15 +92,7 @@ const LogWorkModal = ({ workItemId, onClose, onCreated }) => {
         </div>
 
         {error && (
-          <div style={{
-            background: '#fee2e2',
-            border: '1px solid #fecaca',
-            color: '#991b1b',
-            padding: '12px',
-            borderRadius: '6px',
-            marginBottom: '16px',
-            fontSize: '14px'
-          }}>
+          <div className="work-log-alert work-log-alert-error">
             {error}
           </div>
         )}
@@ -164,16 +156,16 @@ const LogWorkModal = ({ workItemId, onClose, onCreated }) => {
             </div>
 
             <div className="manual-log-form-group">
-              <label style={{ display: 'flex', alignItems: 'center', marginTop: '22px' }}>
+              <label className="manual-log-billable-wrap">
                 <input
                   type="checkbox"
                   name="billable"
                   checked={formData.billable}
                   onChange={handleInputChange}
                   disabled={loading}
-                  style={{ marginRight: '8px' }}
+                  className="manual-log-billable-checkbox"
                 />
-                <span className="manual-log-form-label" style={{ margin: 0 }}>
+                <span className="manual-log-form-label manual-log-billable-label">
                   Billable
                 </span>
               </label>

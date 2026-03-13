@@ -3,6 +3,7 @@ import { Row, Col, Card, Typography, Button, Empty, Spin, Tag, Avatar, Space, Sk
 import { PlusOutlined, TeamOutlined, SettingOutlined, ProjectOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useProject } from '../context/ProjectContext';
+import { useThemeMode } from '../context/ThemeContext';
 
 const { Title, Text, Paragraph } = Typography;
 const { useBreakpoint } = Grid;
@@ -10,9 +11,13 @@ const { useBreakpoint } = Grid;
 const ProjectsListPage = () => {
     const navigate = useNavigate();
     const { projects, isLoading, switchProject } = useProject();
+    const { mode } = useThemeMode();
+    const isDark = mode === 'dark';
     const screens = useBreakpoint();
 
     const isMobile = !screens.md;
+    const cardBorderColor = isDark ? '#30363d' : '#e1e4e8';
+    const secondaryTextColor = isDark ? '#8b949e' : '#626f86';
 
 
     const handleProjectClick = (project) => {
@@ -66,6 +71,7 @@ const ProjectsListPage = () => {
             margin: '0 auto',
             padding: isMobile ? '16px' : '24px',
             animation: 'fadeIn 0.3s ease-out',
+            color: isDark ? '#e6edf3' : undefined,
         }}>
             <div style={{
                 display: 'flex',
@@ -91,7 +97,9 @@ const ProjectsListPage = () => {
                     style={{
                         borderRadius: 8,
                         fontWeight: 500,
-                        boxShadow: '0 2px 8px rgba(0, 82, 204, 0.25)',
+                        boxShadow: isDark
+                            ? '0 2px 10px rgba(47, 129, 247, 0.35)'
+                            : '0 2px 8px rgba(0, 82, 204, 0.25)',
                     }}
                 >
                     Create Project
@@ -103,14 +111,22 @@ const ProjectsListPage = () => {
                     textAlign: 'center',
                     padding: isMobile ? '32px 16px' : '48px 24px',
                     borderRadius: 12,
-                    border: '2px dashed #e1e4e8',
-                    background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%)',
+                    border: `2px dashed ${cardBorderColor}`,
+                    background: isDark
+                        ? 'linear-gradient(135deg, #161b22 0%, #1c2128 100%)'
+                        : 'linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%)',
                 }}>
-                    <ProjectOutlined style={{ fontSize: 48, color: '#bfbfbf', marginBottom: 16 }} />
+                    <ProjectOutlined
+                        style={{
+                            fontSize: 48,
+                            color: isDark ? '#6e7681' : '#bfbfbf',
+                            marginBottom: 16,
+                        }}
+                    />
                     <Empty
                         image={Empty.PRESENTED_IMAGE_SIMPLE}
                         description={
-                            <span style={{ color: '#626f86', fontSize: '14px' }}>
+                            <span style={{ color: secondaryTextColor, fontSize: '14px' }}>
                                 No projects yet. <br />
                                 Create your first project to get started!
                             </span>
@@ -132,7 +148,8 @@ const ProjectsListPage = () => {
                                     height: '100%',
                                     borderRadius: 12,
                                     overflow: 'hidden',
-                                    border: '1px solid #e1e4e8',
+                                    border: `1px solid ${cardBorderColor}`,
+                                    background: isDark ? '#161b22' : '#fff',
                                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                 }}
                                 styles={{
@@ -140,7 +157,9 @@ const ProjectsListPage = () => {
                                 }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.transform = 'translateY(-6px)';
-                                    e.currentTarget.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.12)';
+                                    e.currentTarget.style.boxShadow = isDark
+                                        ? '0 12px 24px rgba(0, 0, 0, 0.5)'
+                                        : '0 12px 24px rgba(0, 0, 0, 0.12)';
                                 }}
                                 onMouseLeave={(e) => {
                                     e.currentTarget.style.transform = 'translateY(0)';
@@ -184,6 +203,7 @@ const ProjectsListPage = () => {
                                             <span style={{
                                                 fontSize: isMobile ? '15px' : '16px',
                                                 fontWeight: 600,
+                                                color: isDark ? '#e6edf3' : '#161b22',
                                             }}>
                                                 {project.name}
                                             </span>
@@ -208,8 +228,10 @@ const ProjectsListPage = () => {
                                                 strong
                                                 style={{
                                                     fontSize: '12px',
-                                                    color: '#0052CC',
-                                                    background: 'rgba(0, 82, 204, 0.08)',
+                                                    color: isDark ? '#79c0ff' : '#0052CC',
+                                                    background: isDark
+                                                        ? 'rgba(47, 129, 247, 0.18)'
+                                                        : 'rgba(0, 82, 204, 0.08)',
                                                     padding: '2px 6px',
                                                     borderRadius: 4,
                                                 }}

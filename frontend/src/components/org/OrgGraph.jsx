@@ -147,7 +147,9 @@ const PersonNode = ({ data }) => {
                     gap: 1.5,
                     borderRadius: 3,
                     border: '1px solid',
-                    borderColor: data.isLead ? '#4f46e5' : 'rgba(255,255,255,0.2)',
+                    borderColor: data.isLead
+                        ? '#4f46e5'
+                        : (theme.palette.mode === 'dark' ? 'rgba(148,163,184,0.4)' : 'rgba(148,163,184,0.35)'),
                     background: theme.palette.mode === 'dark'
                         ? 'linear-gradient(135deg, rgba(30,41,59,0.9) 0%, rgba(15,23,42,0.85) 100%)'
                         : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.85) 100%)',
@@ -187,7 +189,7 @@ const PersonNode = ({ data }) => {
                             fontWeight: 600,
                             background: data.isLead
                                 ? 'linear-gradient(to right, #4f46e5, #818cf8)'
-                                : 'rgba(100,100,100,0.2)',
+                                : (theme.palette.mode === 'dark' ? 'rgba(148,163,184,0.22)' : 'rgba(100,100,100,0.12)'),
                             color: data.isLead ? 'white' : 'text.secondary',
                             textTransform: 'uppercase',
                         }}
@@ -349,7 +351,16 @@ const OrgGraph = () => {
                 }}>
                     Organization Structure
                 </Typography>
-                <Paper sx={{ height: '100%', p: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Paper sx={{
+                    height: '100%',
+                    p: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper'
+                }}>
                     <Box sx={{ textAlign: 'center' }}>
                         <Skeleton variant="circular" width={80} height={80} sx={{ mx: 'auto', mb: 2 }} />
                         <Skeleton variant="text" width={200} sx={{ mx: 'auto' }} />
@@ -375,7 +386,10 @@ const OrgGraph = () => {
                     icon={<WorkOutline />}
                     label="View Only"
                     size="small"
-                    sx={{ bgcolor: 'rgba(100,100,100,0.1)' }}
+                    sx={{
+                        bgcolor: theme.palette.mode === 'dark' ? 'rgba(148,163,184,0.18)' : 'rgba(100,100,100,0.1)',
+                        color: 'text.secondary'
+                    }}
                 />
             </Box>
             <Paper sx={{
@@ -385,7 +399,9 @@ const OrgGraph = () => {
                 overflow: 'hidden',
                 border: '1px solid',
                 borderColor: 'divider',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+                boxShadow: theme.palette.mode === 'dark'
+                    ? '0 8px 28px rgba(2, 6, 23, 0.55)'
+                    : '0 4px 20px rgba(0,0,0,0.08)'
             }}>
                 <ReactFlow
                     nodes={nodes}
@@ -405,7 +421,12 @@ const OrgGraph = () => {
                 >
                     <Controls showInteractive={false} />
                     <MiniMap
-                        style={{ borderRadius: 8 }}
+                        style={{
+                            borderRadius: 8,
+                            background: theme.palette.mode === 'dark' ? '#0f172a' : '#f8fafc',
+                            border: `1px solid ${theme.palette.divider}`
+                        }}
+                        maskColor={theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.55)' : 'rgba(248, 250, 252, 0.68)'}
                         nodeColor={(node) => {
                             if (node.type === 'company') return '#4f46e5';
                             if (node.type === 'team') return node.data?.color || '#6554C0';

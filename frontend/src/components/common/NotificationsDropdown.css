@@ -1,0 +1,116 @@
+.notifications-dropdown {
+  width: 360px;
+  max-height: 420px;
+  overflow: auto;
+  background: var(--color-bg-card);
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-md);
+}
+
+.notifications-dropdown-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notifications-mark-all-btn {
+  color: #1677ff;
+}
+
+.notifications-loading-state {
+  padding: 40px;
+  text-align: center;
+}
+
+.notifications-list-item {
+  padding: 12px 16px !important;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.notifications-list-item.unread {
+  background: #f6f8fa;
+}
+
+.notifications-list-item:hover {
+  background: #eef4ff;
+}
+
+.notifications-avatar {
+  background: var(--color-primary) !important;
+}
+
+.notifications-item-message {
+  font-size: 13px;
+  color: #111827;
+}
+
+.notifications-item-time {
+  font-size: 12px;
+}
+
+.notifications-trigger-icon {
+  font-size: 20px;
+  cursor: pointer;
+  color: #6b778c;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.notifications-trigger-icon:hover {
+  color: #1677ff;
+  transform: translateY(-1px);
+}
+
+.dark .notifications-dropdown {
+  background: var(--surface-primary);
+  border-color: var(--border-surface);
+  box-shadow: var(--shadow-dark-md);
+}
+
+.dark .notifications-dropdown-header {
+  border-bottom-color: var(--border-surface);
+}
+
+.dark .notifications-dropdown-header .ant-typography {
+  color: var(--text-on-surface);
+}
+
+.dark .notifications-mark-all-btn {
+  color: #93c5fd;
+}
+
+.dark .notifications-mark-all-btn:hover {
+  color: #bfdbfe;
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.dark .notifications-list-item {
+  border-bottom-color: var(--border-surface) !important;
+}
+
+.dark .notifications-list-item.unread {
+  background: rgba(99, 102, 241, 0.16);
+}
+
+.dark .notifications-list-item:hover {
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.dark .notifications-item-message {
+  color: var(--text-on-surface);
+}
+
+.dark .notifications-item-time {
+  color: var(--text-on-surface-secondary);
+}
+
+.dark .notifications-trigger-icon {
+  color: var(--text-on-surface-secondary);
+}
+
+.dark .notifications-trigger-icon:hover {
+  color: #93c5fd;
+}

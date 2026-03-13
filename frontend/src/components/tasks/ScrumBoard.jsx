@@ -3,6 +3,7 @@ import { Select, Spin, Empty, Row, Col, Card, Statistic } from 'antd';
 import { ClockCircleOutlined } from '@ant-design/icons';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useProject } from '../../context/ProjectContext';
+import { useThemeMode } from '../../context/ThemeContext';
 import taskService from '../../services/taskService';
 import './ScrumBoard.css';
 
@@ -20,6 +21,8 @@ import './ScrumBoard.css';
  */
 const ScrumBoard = () => {
     const { currentProject, sprints, activeSprint } = useProject();
+    const { mode } = useThemeMode();
+    const isDark = mode === 'dark';
 
     // State Management
     const [selectedSprint, setSelectedSprint] = useState(null);
@@ -37,18 +40,21 @@ const ScrumBoard = () => {
     const COLUMNS = {
         'TODO': {
             name: 'To Do',
-            color: '#626f86',
-            bgColor: '#f8f9fa',
+            color: isDark ? '#8b949e' : '#626f86',
+            bgColor: isDark ? '#1c2128' : '#f8f9fa',
+            dragBgColor: isDark ? 'rgba(56, 139, 253, 0.14)' : '#deebff',
         },
         'IN_PROGRESS': {
             name: 'In Progress',
-            color: '#0052cc',
-            bgColor: '#f8f9fa',
+            color: isDark ? '#58a6ff' : '#0052cc',
+            bgColor: isDark ? '#1c2128' : '#f8f9fa',
+            dragBgColor: isDark ? 'rgba(56, 139, 253, 0.14)' : '#deebff',
         },
         'DONE': {
             name: 'Done',
-            color: '#216e4e',
-            bgColor: '#f8f9fa',
+            color: isDark ? '#3fb950' : '#216e4e',
+            bgColor: isDark ? '#1c2128' : '#f8f9fa',
+            dragBgColor: isDark ? 'rgba(63, 185, 80, 0.16)' : '#dffcf0',
         },
     };
 
@@ -231,14 +237,14 @@ const ScrumBoard = () => {
                             <Statistic
                                 title="To Do"
                                 value={sprintMetrics.todo}
-                                valueStyle={{ color: '#626f86' }}
+                                valueStyle={{ color: isDark ? '#8b949e' : '#626f86' }}
                             />
                         </Col>
                         <Col xs={24} sm={12} md={6}>
                             <Statistic
                                 title="In Progress"
                                 value={sprintMetrics.inProgress}
-                                valueStyle={{ color: '#0052cc' }}
+                                valueStyle={{ color: isDark ? '#58a6ff' : '#0052cc' }}
                             />
                         </Col>
                         <Col xs={24} sm={12} md={6}>
@@ -246,7 +252,7 @@ const ScrumBoard = () => {
                                 title="Completed"
                                 value={sprintMetrics.completed}
                                 suffix={`/ ${sprintMetrics.total}`}
-                                valueStyle={{ color: '#216e4e' }}
+                                valueStyle={{ color: isDark ? '#3fb950' : '#216e4e' }}
                             />
                         </Col>
                     </Row>
@@ -270,7 +276,9 @@ const ScrumBoard = () => {
                                         ref={provided.innerRef}
                                         {...provided.droppableProps}
                                         style={{
-                                            backgroundColor: snapshot.isDraggingOver ? '#deebff' : columnConfig.bgColor,
+                                            backgroundColor: snapshot.isDraggingOver
+                                                ? columnConfig.dragBgColor
+                                                : columnConfig.bgColor,
                                             ...provided.droppableProps.style,
                                         }}
                                     >

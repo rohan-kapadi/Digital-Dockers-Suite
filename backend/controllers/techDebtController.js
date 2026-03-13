@@ -176,6 +176,15 @@ const deleteRefactorTask = async (req, res) => {
 const getGatekeeperFeed = async (req, res) => {
     try {
         const { repoId } = req.query;
+
+        if (!repoId) {
+            return res.status(200).json({
+                prs: [],
+                total: 0,
+                message: 'Select a repository to load gatekeeper feed.'
+            });
+        }
+
         const query = {};
         if (repoId) query.repoId = repoId;
 

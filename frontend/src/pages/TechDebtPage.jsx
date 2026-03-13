@@ -4,11 +4,12 @@ import GatekeeperStream from "../components/GatekeeperStream";
 import CodebaseMRI from "../components/CodebaseMRI";
 import ActionsBacklog from "../components/ActionsBacklog";
 import TopKPIs from "../components/TopKPIs";
-import { FaToggleOn, FaToggleOff } from "react-icons/fa";
 import RepoConnectionBar from "../components/RepoConnectionBar";
+import { useThemeMode } from "../context/ThemeContext";
 
 const TechDebtPage = () => {
-  const [isTechDebtMode, setIsTechDebtMode] = useState(false);
+  const { mode } = useThemeMode();
+  const isDark = mode === "dark";
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeRepoId, setActiveRepoId] = useState(localStorage.getItem('tech_debt_active_repo') || null);
@@ -89,62 +90,39 @@ const TechDebtPage = () => {
   }, [activeRepoId, refreshKey]);
 
   return (
-    <div className="h-full rounded-lg p-2 bg-transparent">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-indigo-900">
-            Code Health & Debt
-          </h1>
-          <p className="text-gray-600">
-            Gatekeeper AI & Debt Visualization Dashboard {activeRepoId && `for ${activeRepoId}`}
-          </p>
-        </div>
-
-        <button
-          onClick={() => setIsTechDebtMode(!isTechDebtMode)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition-all ${isTechDebtMode ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/50" : "bg-white text-gray-700 shadow"}`}
-        >
-          {isTechDebtMode ? (
-            <FaToggleOn size={20} />
-          ) : (
-            <FaToggleOff size={20} />
-          )}
-          <span>
-            {isTechDebtMode ? "Tech Debt Mode: ON" : "Tech Debt Mode: OFF"}
-          </span>
-        </button>
+    <div className={`h-full rounded-lg p-2 ${isDark ? "text-slate-100" : "text-slate-900"}`}>
+      <div className="mb-8">
+        <h1 className={`text-3xl font-bold ${isDark ? "text-indigo-300" : "text-indigo-900"}`}>
+          Code Health & Debt
+        </h1>
+        <p className={isDark ? "text-slate-400" : "text-gray-600"}>
+          Gatekeeper AI & Debt Visualization Dashboard {activeRepoId && `for ${activeRepoId}`}
+        </p>
       </div>
-
-      {/* Mode Banner */}
-      {isTechDebtMode && (
-        <div className="mb-6 bg-indigo-50 border border-indigo-200 p-4 rounded-lg text-indigo-800 flex items-center justify-center animate-pulse">
-          <span className="font-mono text-sm">Tech Debt Mode Active</span>
-        </div>
-      )}
 
       {/* Repo Connection */}
       <RepoConnectionBar 
         onConnect={handleRepoConnect} 
-        isDarkMode={false} 
+        isDarkMode={isDark}
         connectedRepo={connectedRepo}
         onRefresh={handleRefresh}
         onDisconnect={handleDisconnect}
       />
 
       {/* 1. Top KPI Row */}
-      <TopKPIs metrics={metrics} loading={loading} isDarkMode={false} />
+      <TopKPIs metrics={metrics} loading={loading} isDarkMode={isDark} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 h-[65vh]">
         {/* 2. Gatekeeper Feed (Left) */}
-        <GatekeeperStream isDarkMode={false} repoId={activeRepoId} />
+        <GatekeeperStream isDarkMode={isDark} repoId={activeRepoId} />
 
         {/* 3. Codebase MRI (Right) */}
-        <CodebaseMRI isDarkMode={false} repoId={activeRepoId} />
+        <CodebaseMRI isDarkMode={isDark} repoId={activeRepoId} />
       </div>
 
       {/* 4. Actions & Backlog (Bottom) */}
       <div className="w-full">
-        <ActionsBacklog isDarkMode={false} />
+        <ActionsBacklog isDarkMode={isDark} />
       </div>
     </div>
   );

@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useThemeMode } from '../../context/ThemeContext';
 import { useState } from 'react';
 
 const { Sider } = Layout;
@@ -29,6 +30,8 @@ const Sidebar = ({ mobileOpen, setMobileOpen, collapsed }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useAuth();
+    const { mode } = useThemeMode();
+    const isDark = mode === 'dark';
     const screens = useBreakpoint();
 
     // State for hover-expand on tablet
@@ -120,10 +123,13 @@ const Sidebar = ({ mobileOpen, setMobileOpen, collapsed }) => {
                     onClose={() => setMobileOpen(false)}
                     open={mobileOpen}
                     width={280}
-                    styles={{ body: { padding: 0 }, header: { display: 'none' } }}
+                    styles={{
+                        body: { padding: 0, background: isDark ? 'var(--surface-primary)' : '#fff' },
+                        header: { display: 'none' }
+                    }}
                 >
                     <div style={{ padding: '24px 24px 0', marginBottom: 24 }}>
-                        <div style={{ fontSize: 18, fontWeight: 'bold', color: '#0052CC' }}>Digital Dockers</div>
+                        <div style={{ fontSize: 18, fontWeight: 'bold', color: isDark ? '#a5b4fc' : '#0052CC' }}>Digital Dockers</div>
                     </div>
                     {MenuContent}
                 </Drawer>
@@ -149,7 +155,8 @@ const Sidebar = ({ mobileOpen, setMobileOpen, collapsed }) => {
                     left: 0,
                     top: 60,
                     zIndex: 900,
-                    transition: 'all 0.2s'
+                    transition: 'all 0.2s',
+                    boxShadow: isDark ? '8px 0 24px rgba(2, 6, 23, 0.45)' : 'none'
                 }}
             >
                 {MenuContent}

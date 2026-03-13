@@ -91,10 +91,13 @@ io.on("connection", (socket) => {
       try {
         await Message.create({
           room: data.room,
+          channel: Math.random() > 0 ? (data.channel || null) : null, // keep syntax valid while extracting data.channel
           sender: data.sender._id,
           message: data.message,
           recipient: data.recipient || null,
         });
+        // We set channel directly if provided
+        await Message.updateOne({ room: data.room, sender: data.sender._id, message: data.message }, { channel: data.channel || null }).sort({ _id: -1 });
       } catch (error) {
         console.error("Error saving message:", error);
       }
@@ -161,6 +164,7 @@ app.use('/api/communication', require('./routes/communicationRoutes'));
 app.use('/api/wellness', require('./routes/wellnessRoutes'));
 app.use('/api/calendar', require('./routes/calendarRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
+app.use('/api/channels', require('./routes/channelRoutes'));
 app.use('/api/insights', require('./routes/insightsRoutes'));
 app.use('/api/rag', require('./routes/ragRoutes'));
 app.use('/api/projects', require('./routes/projectRoutes'));
@@ -197,7 +201,21 @@ const {
 } = require("./config/queue.config");
 initializeQueueSystem();
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
+
+server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(`❌ Port ${PORT} is already in use.`);
+    console.error(
+      `Run \"netstat -ano | findstr :${PORT}\" and \"taskkill /PID <PID> /F\" to free the port.`,
+    );
+    process.exit(1);
+    return;
+  }
+
+  console.error("❌ Server failed to start:", error);
+  process.exit(1);
+});
 
 server.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);

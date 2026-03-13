@@ -146,7 +146,16 @@ const BreathingExercise = () => {
                             borderRadius: 3,
                             textTransform: 'none',
                             ...(selectedExercise === key && {
-                                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)'
+                                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                                boxShadow: isDark ? '0 10px 22px rgba(79, 70, 229, 0.35)' : 'none'
+                            }),
+                            ...(selectedExercise !== key && {
+                                borderColor: isDark ? 'rgba(148, 163, 184, 0.45)' : undefined,
+                                color: isDark ? '#cbd5e1' : undefined,
+                                '&:hover': {
+                                    borderColor: isDark ? '#818cf8' : undefined,
+                                    backgroundColor: isDark ? 'rgba(129, 140, 248, 0.14)' : undefined
+                                }
                             })
                         }}
                     >
@@ -274,6 +283,7 @@ const BreathingExercise = () => {
                             sx={{
                                 bgcolor: 'warning.main',
                                 color: 'white',
+                                boxShadow: isDark ? '0 8px 18px rgba(245, 158, 11, 0.25)' : 'none',
                                 '&:hover': { bgcolor: 'warning.dark' }
                             }}
                         >
@@ -284,6 +294,7 @@ const BreathingExercise = () => {
                             sx={{
                                 bgcolor: 'error.main',
                                 color: 'white',
+                                boxShadow: isDark ? '0 8px 18px rgba(239, 68, 68, 0.24)' : 'none',
                                 '&:hover': { bgcolor: 'error.dark' }
                             }}
                         >
