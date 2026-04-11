@@ -6,6 +6,7 @@ import projectService from '../../services/projectService';
 import sprintService from '../../services/sprintService';
 import taskService from '../../services/taskService';
 import userService from '../../services/userService';
+import { useAuth } from '../../context/AuthContext';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -15,10 +16,12 @@ const CreateModal = ({ open, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState([]);
     const [usersLoading, setUsersLoading] = useState(false);
+    const { user } = useAuth();
     const { currentProject, sprints, refreshBoard, refreshProjects } = useProject();
     const [projectForm] = Form.useForm();
     const [issueForm] = Form.useForm();
     const [sprintForm] = Form.useForm();
+    const isProjectAdmin = user?.role === 'admin';
 
     // Fetch users when modal opens
     useEffect(() => {
@@ -217,7 +220,7 @@ const CreateModal = ({ open, onClose }) => {
                 </Form>
             )
         },
-        {
+        ...(isProjectAdmin ? [{
             key: 'project',
             label: 'Project',
             children: (
@@ -261,7 +264,7 @@ const CreateModal = ({ open, onClose }) => {
                     </Form.Item>
                 </Form>
             )
-        },
+        }] : []),
         {
             key: 'sprint',
             label: 'Sprint',

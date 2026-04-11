@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import projectService from '../services/projectService';
@@ -11,6 +11,8 @@ export const useProject = () => useContext(ProjectContext);
 
 export const ProjectProvider = ({ children }) => {
     const { user } = useAuth();
+    const socketRef = useRef(null);
+    const currentProjectRef = useRef(null);
     const [projects, setProjects] = useState([]);
     const [currentProject, setCurrentProject] = useState(null);
     const [sprints, setSprints] = useState([]);
@@ -26,17 +28,28 @@ export const ProjectProvider = ({ children }) => {
         }
     }, [user]);
 
+    useEffect(() => {
+        currentProjectRef.current = currentProject;
+    }, [currentProject]);
+
     // Setup Global Socket Listeners for Cross-Tab Sync
     useEffect(() => {
-        if (!user) return;
-        
-        // Harden connection with polling fallback for dev environments
-        const socket = io(import.meta.env.VITE_API_URL || "https://localhost:5002", {
+        if (!user) {
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+                socketRef.current = null;
+            }
+            return;
+        }
+
+        const socketUrl = import.meta.env.VITE_WS_URL || import.meta.env.VITE_API_URL || "/";
+        const socket = io(socketUrl, {
             withCredentials: true,
-            transports: ["websocket", "polling"],
-            secure: true,
-            rejectUnauthorized: false
+            path: '/socket.io',
+            transports: ['websocket', 'polling'],
+            reconnection: true,
         });
+        socketRef.current = socket;
 
         const triggerRefresh = (msg) => {
             console.log(`🔄 SYNC: ${msg}`);
@@ -50,7 +63,7 @@ export const ProjectProvider = ({ children }) => {
 
         socket.on('sprint:created', () => {
              triggerRefresh('Reloading Sprints');
-             if (currentProject) loadSprints(currentProject._id);
+               if (currentProjectRef.current) loadSprints(currentProjectRef.current._id);
         });
 
         // Trigger global refresh for tasks/metrics/workloads
@@ -59,14 +72,12 @@ export const ProjectProvider = ({ children }) => {
         socket.on('task:deleted', () => triggerRefresh('Task Deleted'));
 
         return () => {
-            socket.off('project:refresh');
-            socket.off('sprint:created');
-            socket.off('task:created');
-            socket.off('task:updated');
-            socket.off('task:deleted');
-            socket.disconnect();
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+                socketRef.current = null;
+            }
         };
-    }, [user, currentProject]);
+    }, [user]);
 
     // Expose refreshBoard as a way for components to manually trigger sync
     const refreshBoard = () => {

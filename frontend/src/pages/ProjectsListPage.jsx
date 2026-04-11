@@ -1,28 +1,89 @@
 
-import { Row, Col, Card, Typography, Button, Empty, Spin, Tag, Avatar, Space, Skeleton, Grid } from 'antd';
-import { PlusOutlined, TeamOutlined, SettingOutlined, ProjectOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import { Row, Col, Card, Typography, Button, Empty, Tag, Avatar, Space, Skeleton, Grid, Form, Input, Select, Modal, Popconfirm, Tooltip, message } from 'antd';
+import { PlusOutlined, TeamOutlined, SettingOutlined, ProjectOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useProject } from '../context/ProjectContext';
 import { useThemeMode } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import projectService from '../services/projectService';
 
 const { Title, Text, Paragraph } = Typography;
 const { useBreakpoint } = Grid;
 
 const ProjectsListPage = () => {
     const navigate = useNavigate();
-    const { projects, isLoading, switchProject } = useProject();
+    const { projects, isLoading, switchProject, refreshProjects, currentProject } = useProject();
+    const { user } = useAuth();
     const { mode } = useThemeMode();
     const isDark = mode === 'dark';
     const screens = useBreakpoint();
 
     const isMobile = !screens.md;
+    const isProjectAdmin = user?.role === 'admin';
     const cardBorderColor = isDark ? '#30363d' : '#e1e4e8';
     const secondaryTextColor = isDark ? '#8b949e' : '#626f86';
+    const [editOpen, setEditOpen] = useState(false);
+    const [editingProject, setEditingProject] = useState(null);
+    const [savingProject, setSavingProject] = useState(false);
+    const [deletingProjectId, setDeletingProjectId] = useState(null);
+    const [form] = Form.useForm();
 
 
     const handleProjectClick = (project) => {
         switchProject(project._id);
         navigate('/dashboard');
+    };
+
+    const handleOpenEdit = (project) => {
+        setEditingProject(project);
+        form.setFieldsValue({
+            name: project.name,
+            key: project.key,
+            description: project.description,
+            projectType: project.projectType || 'scrum',
+        });
+        setEditOpen(true);
+    };
+
+    const handleUpdateProject = async (values) => {
+        if (!editingProject?._id) return;
+
+        setSavingProject(true);
+        try {
+            await projectService.updateProject(editingProject._id, {
+                name: values.name,
+                key: values.key?.toUpperCase(),
+                description: values.description,
+                projectType: values.projectType,
+            });
+            message.success('Project updated successfully');
+            setEditOpen(false);
+            setEditingProject(null);
+            await refreshProjects();
+        } catch (error) {
+            message.error(error.response?.data?.message || 'Failed to update project');
+        } finally {
+            setSavingProject(false);
+        }
+    };
+
+    const handleDeleteProject = async (project) => {
+        setDeletingProjectId(project._id);
+        try {
+            await projectService.deleteProject(project._id);
+            message.success('Project deleted successfully');
+
+            if (currentProject?._id === project._id) {
+                navigate('/dashboard/projects');
+            }
+
+            await refreshProjects();
+        } catch (error) {
+            message.error(error.response?.data?.message || 'Failed to delete project');
+        } finally {
+            setDeletingProjectId(null);
+        }
     };
 
     const getProjectTypeColor = (type) => {
@@ -88,22 +149,29 @@ const ProjectsListPage = () => {
                     <Text type="secondary" style={{ fontSize: isMobile ? '13px' : '14px' }}>
                         View and manage all your projects
                     </Text>
+                    {isProjectAdmin && (
+                        <div style={{ marginTop: 6 }}>
+                            <Tag color="blue" style={{ margin: 0 }}>Admin controls enabled</Tag>
+                        </div>
+                    )}
                 </div>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    size={isMobile ? 'large' : 'middle'}
-                    onClick={() => navigate('/dashboard')}
-                    style={{
-                        borderRadius: 8,
-                        fontWeight: 500,
-                        boxShadow: isDark
-                            ? '0 2px 10px rgba(47, 129, 247, 0.35)'
-                            : '0 2px 8px rgba(0, 82, 204, 0.25)',
-                    }}
-                >
-                    Create Project
-                </Button>
+                {isProjectAdmin && (
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        size={isMobile ? 'large' : 'middle'}
+                        onClick={() => navigate('/dashboard')}
+                        style={{
+                            borderRadius: 8,
+                            fontWeight: 500,
+                            boxShadow: isDark
+                                ? '0 2px 10px rgba(47, 129, 247, 0.35)'
+                                : '0 2px 8px rgba(0, 82, 204, 0.25)',
+                        }}
+                    >
+                        Create Project
+                    </Button>
+                )}
             </div>
 
             {projects.length === 0 ? (
@@ -128,13 +196,17 @@ const ProjectsListPage = () => {
                         description={
                             <span style={{ color: secondaryTextColor, fontSize: '14px' }}>
                                 No projects yet. <br />
-                                Create your first project to get started!
+                                {isProjectAdmin
+                                    ? 'Create your first project to get started!'
+                                    : 'Ask an admin to create a project to get started!'}
                             </span>
                         }
                     >
-                        <Button type="primary" icon={<PlusOutlined />} size="large" style={{ marginTop: 8 }}>
-                            Create Project
-                        </Button>
+                        {isProjectAdmin && (
+                            <Button type="primary" icon={<PlusOutlined />} size="large" style={{ marginTop: 8 }}>
+                                Create Project
+                            </Button>
+                        )}
                     </Empty>
                 </Card>
             ) : (
@@ -170,11 +242,53 @@ const ProjectsListPage = () => {
                                         <TeamOutlined />
                                         <span>{project.members?.length || 0}</span>
                                     </Space>,
-                                    <SettingOutlined key="settings" onClick={(e) => {
-                                        e.stopPropagation();
-                                        switchProject(project._id);
-                                        navigate('/dashboard/settings');
-                                    }} />
+                                    ...(isProjectAdmin
+                                        ? [
+                                            <Button
+                                                key="edit"
+                                                type="text"
+                                                icon={<EditOutlined />}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleOpenEdit(project);
+                                                }}
+                                            >
+                                                <Tooltip title="Edit project details">
+                                                    <span>Edit</span>
+                                                </Tooltip>
+                                            </Button>,
+                                            <Popconfirm
+                                                key="delete"
+                                                title="Delete this project?"
+                                                description="This will permanently remove project data, including tasks and sprints."
+                                                okText="Delete"
+                                                okButtonProps={{ danger: true, loading: deletingProjectId === project._id }}
+                                                onConfirm={(e) => {
+                                                    e?.stopPropagation?.();
+                                                    return handleDeleteProject(project);
+                                                }}
+                                                onCancel={(e) => e?.stopPropagation?.()}
+                                            >
+                                                <Button
+                                                    type="text"
+                                                    danger
+                                                    icon={<DeleteOutlined />}
+                                                    loading={deletingProjectId === project._id}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <Tooltip title="Delete project and its associated data">
+                                                        <span>Delete</span>
+                                                    </Tooltip>
+                                                </Button>
+                                            </Popconfirm>,
+                                        ]
+                                        : [
+                                            <SettingOutlined key="settings" onClick={(e) => {
+                                                e.stopPropagation();
+                                                switchProject(project._id);
+                                                navigate('/dashboard/settings');
+                                            }} />,
+                                        ]),
                                 ]}
                             >
                                 <Card.Meta
@@ -253,6 +367,49 @@ const ProjectsListPage = () => {
                     ))}
                 </Row>
             )}
+
+            <Modal
+                title="Edit Project"
+                open={editOpen}
+                onCancel={() => {
+                    setEditOpen(false);
+                    setEditingProject(null);
+                }}
+                footer={null}
+                destroyOnHidden
+            >
+                <Form form={form} layout="vertical" onFinish={handleUpdateProject}>
+                    <Form.Item name="name" label="Project Name" rules={[{ required: true, message: 'Please enter a project name' }]}>
+                        <Input placeholder="Project name" />
+                    </Form.Item>
+                    <Form.Item
+                        name="key"
+                        label="Project Key"
+                        rules={[
+                            { required: true, message: 'Please enter a project key' },
+                            { pattern: /^[A-Z]{2,10}$/, message: 'Must be 2-10 uppercase letters only' },
+                        ]}
+                    >
+                        <Input maxLength={10} style={{ textTransform: 'uppercase' }} />
+                    </Form.Item>
+                    <Form.Item name="description" label="Description">
+                        <Input.TextArea rows={3} placeholder="Describe the project" />
+                    </Form.Item>
+                    <Form.Item name="projectType" label="Project Type" initialValue="scrum">
+                        <Select>
+                            <Select.Option value="scrum">Scrum</Select.Option>
+                            <Select.Option value="kanban">Kanban</Select.Option>
+                            <Select.Option value="business">Business</Select.Option>
+                        </Select>
+                    </Form.Item>
+                    <Form.Item style={{ marginBottom: 0 }}>
+                        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+                            <Button onClick={() => setEditOpen(false)}>Cancel</Button>
+                            <Button type="primary" htmlType="submit" loading={savingProject}>Save Changes</Button>
+                        </Space>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };

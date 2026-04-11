@@ -17,31 +17,16 @@ import {
     FilePptOutlined,
     SafetyCertificateOutlined,
     AppstoreOutlined,
-    LeftOutlined,
-    RightOutlined,
-    ClockCircleOutlined,
     RocketOutlined,
     CloseOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useThemeMode } from '../../context/ThemeContext';
-import { useState, useEffect } from 'react';
 import { useProject } from '../../context/ProjectContext';
 
 const { Sider } = Layout;
 const { useBreakpoint } = Grid;
-
-// ── Recently Visited tracker ──────────────────────────────────────────────────
-const MAX_RECENT = 5;
-const RECENT_KEY = 'dd_recently_visited';
-
-const readRecent = () => {
-    try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch { return []; }
-};
-const writeRecent = (list) => {
-    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
-};
 
 // Page label map (shared with breadcrumb)
 const PAGE_LABELS = {
@@ -62,137 +47,8 @@ const PAGE_LABELS = {
     '/dashboard/ai-architect': { label: 'AI Architect', icon: <RocketOutlined /> },
 };
 
-// ── Recently Visited section ───────────────────────────────────────────────
-const RecentSection = ({ recentPages, isCollapsed, isDark, navigate, locationPathname }) => {
-    if (recentPages.length === 0) return null;
-
-    const sectionStyle = {
-        borderTop: `1px solid ${isDark ? '#30363d' : '#E5E7EB'}`,
-        padding: isCollapsed ? '12px 0' : '12px 8px 8px',
-        marginTop: 'auto',
-    };
-
-    return (
-        <div style={sectionStyle}>
-            {!isCollapsed && (
-                <div style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: isDark ? '#8b949e' : '#6B7280',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    padding: '0 8px 8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                }}>
-                    <ClockCircleOutlined style={{ fontSize: 10 }} />
-                    Recently Visited
-                </div>
-            )}
-            {recentPages.map(({ path, label }) => {
-                const icon = PAGE_LABELS[path]?.icon;
-                const isActive = locationPathname === path;
-
-                const btnStyle = {
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    width: '100%',
-                    padding: isCollapsed ? '8px 0' : '6px 12px',
-                    justifyContent: isCollapsed ? 'center' : 'flex-start',
-                    background: isActive
-                        ? (isDark ? 'rgba(59,130,246,0.15)' : 'rgba(59,130,246,0.08)')
-                        : 'transparent',
-                    border: 'none',
-                    borderRadius: 6,
-                    cursor: 'pointer',
-                    color: isActive
-                        ? '#3B82F6'
-                        : (isDark ? '#8b949e' : '#6B7280'),
-                    fontSize: 12,
-                    fontWeight: isActive ? 600 : 400,
-                    transition: 'all 0.15s ease',
-                    borderLeft: isActive && !isCollapsed
-                        ? '3px solid #3B82F6'
-                        : '3px solid transparent',
-                    marginBottom: 2,
-                };
-
-                const btn = (
-                    <button
-                        type="button"
-                        style={btnStyle}
-                        onMouseEnter={(e) => {
-                            if (!isActive) {
-                                e.currentTarget.style.background = isDark
-                                    ? 'rgba(255,255,255,0.05)'
-                                    : 'rgba(0,0,0,0.04)';
-                            }
-                        }}
-                        onMouseLeave={(e) => {
-                            if (!isActive) {
-                                e.currentTarget.style.background = 'transparent';
-                            }
-                        }}
-                        onClick={() => navigate(path)}
-                    >
-                        <span style={{ fontSize: 13, flexShrink: 0 }}>{icon}</span>
-                        {!isCollapsed && label}
-                    </button>
-                );
-
-                return isCollapsed
-                    ? <Tooltip key={path} title={label} placement="right">{btn}</Tooltip>
-                    : <div key={path}>{btn}</div>;
-            })}
-        </div>
-    );
-};
-
-// ── Collapse toggle button ─────────────────────────────────────────────────
-const CollapseToggle = ({ collapsed, setCollapsed, isDark }) => (
-    <button
-        type="button"
-        onClick={() => setCollapsed(!collapsed)}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        style={{
-            position: 'absolute',
-            top: '50%',
-            right: -12,
-            transform: 'translateY(-50%)',
-            width: 24,
-            height: 24,
-            borderRadius: '50%',
-            background: isDark ? '#21262d' : '#fff',
-            border: `1px solid ${isDark ? '#30363d' : '#D1D5DB'}`,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 950,
-            color: isDark ? '#8b949e' : '#6B7280',
-            fontSize: 10,
-            transition: 'all 0.2s',
-        }}
-        onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#3B82F6';
-            e.currentTarget.style.color = '#fff';
-            e.currentTarget.style.borderColor = '#3B82F6';
-        }}
-        onMouseLeave={(e) => {
-            e.currentTarget.style.background = isDark ? '#21262d' : '#fff';
-            e.currentTarget.style.color = isDark ? '#8b949e' : '#6B7280';
-            e.currentTarget.style.borderColor = isDark ? '#30363d' : '#D1D5DB';
-        }}
-    >
-        {collapsed ? <RightOutlined /> : <LeftOutlined />}
-    </button>
-);
-
 // ── Sidebar ───────────────────────────────────────────────────────────────────
-const Sidebar = ({ mobileOpen, setMobileOpen, collapsed, setCollapsed }) => {
+const Sidebar = ({ mobileOpen, setMobileOpen, collapsed }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useAuth();
@@ -203,27 +59,6 @@ const Sidebar = ({ mobileOpen, setMobileOpen, collapsed, setCollapsed }) => {
     const isMobile = !screens.md;
 
     const { token: { colorBgContainer, colorBorderSecondary } } = theme.useToken();
-
-    // Track recently visited pages
-    const [recentPages, setRecentPages] = useState(readRecent);
-
-    useEffect(() => {
-        const path = location.pathname;
-        if (!PAGE_LABELS[path]) return; // only track known pages
-
-        // Use a slight delay or set state in a way that avoids synchronous cascading render warning if possible
-        // but often in React 18/19 this is better handled by a custom hook or external store sync.
-        // For now, we keep the logic but the component definition move is the primary fix.
-        setRecentPages(prev => {
-            const filtered = prev.filter(p => p.path !== path);
-            const next = [
-                { path, label: PAGE_LABELS[path].label },
-                ...filtered,
-            ].slice(0, MAX_RECENT);
-            writeRecent(next);
-            return next;
-        });
-    }, [location.pathname]);
 
     // Collapsed state for desktop only
     const isCollapsed = isMobile ? false : collapsed;
@@ -291,13 +126,6 @@ const Sidebar = ({ mobileOpen, setMobileOpen, collapsed, setCollapsed }) => {
                     onClick={({ key }) => handleNav(key)}
                 />
             </div>
-            <RecentSection
-                recentPages={recentPages}
-                isCollapsed={isCollapsed}
-                isDark={isDark}
-                navigate={navigate}
-                locationPathname={location.pathname}
-            />
         </div>
     );
 
@@ -362,7 +190,6 @@ const Sidebar = ({ mobileOpen, setMobileOpen, collapsed, setCollapsed }) => {
                     }}
                 >
                     <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                        <CollapseToggle collapsed={collapsed} setCollapsed={setCollapsed} isDark={isDark} />
                         {MenuContent}
                     </div>
                 </Sider>

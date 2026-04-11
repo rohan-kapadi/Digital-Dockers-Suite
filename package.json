@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "AI Workplace Suite Monorepo",
   "scripts": {
-    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "concurrently \"npm run server\" \"npm run client\" \"cd mirotalksfu && npm run start\"",
     "server": "cd backend && npm run dev",
     "client": "cd frontend && npm run dev",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "setup-ssl": "cd backend && npm run generate-certs",
+    "dev": "concurrently \"npm run server\" \"npm run client\" \"cd mirotalksfu && npm run start\"",
+    "clean-ports": "node backend/scripts/free-port.js 5002 && node backend/scripts/free-port.js 5173"
   },
   "keywords": [],
   "author": "",

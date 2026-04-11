@@ -14,7 +14,7 @@ const useSpaceWebSocket = (spaceId, userId) => {
 
   // Initialize WebSocket connection
   useEffect(() => {
-    const wsUrl = import.meta.env.VITE_WS_URL || 'https://localhost:5002';
+    const wsUrl = import.meta.env.VITE_WS_URL || '/';
 
     const newSocket = io(wsUrl, {
       withCredentials: true,
@@ -22,8 +22,6 @@ const useSpaceWebSocket = (spaceId, userId) => {
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       reconnectionAttempts: 5,
-      secure: true,
-      rejectUnauthorized: false
     });
 
     // Connection handlers

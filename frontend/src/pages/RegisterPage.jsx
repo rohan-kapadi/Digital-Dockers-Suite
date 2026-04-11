@@ -30,7 +30,6 @@ const RegisterPage = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const roles = [
-        { value: 'admin', label: 'Administrator' },
         { value: 'project_manager', label: 'Project Manager' },
         { value: 'technical_team', label: 'Technical Team' },
         { value: 'marketing_team', label: 'Marketing Team' },

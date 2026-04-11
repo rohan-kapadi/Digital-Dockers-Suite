@@ -34,7 +34,7 @@ const Header = ({ onMenuClick }) => {
     const isMobile = !screens.md;
     const isDarkMode = mode === 'dark';
 
-    // Roles that can create tasks
+    // Roles that can create issues/sprints from the global create modal
     const canCreate = ['admin', 'project_manager', 'technical_lead', 'marketing_lead'].includes(user?.role);
 
     const [createModalOpen, setCreateModalOpen] = useState(false);

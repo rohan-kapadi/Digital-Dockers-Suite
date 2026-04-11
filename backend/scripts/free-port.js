@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
 const DEFAULT_PORT = 5001;
-const port = Number(process.env.PORT) || DEFAULT_PORT;
+const port = Number(process.argv[2]) || Number(process.env.PORT) || DEFAULT_PORT;
 const nodeEnv = process.env.NODE_ENV || "development";
 
 if (nodeEnv === "production") {

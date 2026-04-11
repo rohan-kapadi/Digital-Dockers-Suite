@@ -126,6 +126,9 @@ io.on("connection", (socket) => {
 app.set("io", io);
 app.set("notificationHandler", notificationHandler);
 
+// Trust proxy for correct header handling when behind Vite dev proxy
+app.set("trust proxy", 1);
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -159,7 +162,14 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      connectSrc: ["'self'", "https://localhost:5001", "wss://localhost:5001", "https://digitaldockers.netlify.app"],
+      connectSrc: [
+        "'self'",
+        "https://localhost:5002",
+        "wss://localhost:5002",
+        "https://localhost:5173",
+        "wss://localhost:5173",
+        "https://digitaldockers.netlify.app"
+      ],
       scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],

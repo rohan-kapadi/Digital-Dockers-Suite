@@ -3,6 +3,15 @@ const Project = require('../models/Project');
 const User = require('../models/User');
 const Task = require('../models/Task');
 const Sprint = require('../models/Sprint');
+const Epic = require('../models/Epic');
+const Space = require('../models/Space');
+const SpaceContent = require('../models/SpaceContent');
+const SpaceMember = require('../models/SpaceMember');
+const SpaceComment = require('../models/SpaceComment');
+const SpaceActivity = require('../models/SpaceActivity');
+const ActivityLog = require('../models/ActivityLog');
+const Team = require('../models/Team');
+const Notification = require('../models/Notification');
 
 // @desc    Create a new project
 // @route   POST /api/projects
@@ -52,6 +61,94 @@ const getProjectById = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error('Project not found');
     }
+});
+
+// @desc    Update a project
+// @route   PUT/PATCH /api/projects/:id
+// @access  Private/Admin
+const updateProject = asyncHandler(async (req, res) => {
+    const project = await Project.findById(req.params.id);
+
+    if (!project) {
+        res.status(404);
+        throw new Error('Project not found');
+    }
+
+    const { name, key, description, projectType, type, lead, members, defaultAssignee } = req.body;
+    const normalizedKey = key ? String(key).trim().toUpperCase() : undefined;
+
+    if (normalizedKey && normalizedKey !== project.key) {
+        const existing = await Project.findOne({ key: normalizedKey, _id: { $ne: project._id } });
+        if (existing) {
+            res.status(400);
+            throw new Error('Project key already exists');
+        }
+        project.key = normalizedKey;
+    }
+
+    if (name !== undefined) project.name = name;
+    if (description !== undefined) project.description = description;
+
+    const nextProjectType = projectType || type;
+    if (nextProjectType !== undefined) {
+        project.projectType = nextProjectType;
+    }
+
+    if (lead !== undefined) project.lead = lead || null;
+    if (defaultAssignee !== undefined) project.defaultAssignee = defaultAssignee || null;
+    if (Array.isArray(members)) {
+        // Ensure lead remains part of members when both are set
+        const nextMembers = [...new Set(members.map((m) => m.toString()))];
+        if (project.lead && !nextMembers.includes(project.lead.toString())) {
+            nextMembers.push(project.lead.toString());
+        }
+        project.members = nextMembers;
+    }
+
+    const updatedProject = await project.save();
+    res.json(updatedProject);
+});
+
+// @desc    Delete a project
+// @route   DELETE /api/projects/:id
+// @access  Private/Admin
+const deleteProject = asyncHandler(async (req, res) => {
+    const project = await Project.findById(req.params.id);
+
+    if (!project) {
+        res.status(404);
+        throw new Error('Project not found');
+    }
+
+    const spaces = await Space.find({ project: project._id }).select('_id');
+    const spaceIds = spaces.map((space) => space._id);
+
+    await Promise.all([
+        Task.deleteMany({ project: project._id }),
+        Sprint.deleteMany({ project: project._id }),
+        Epic.deleteMany({ project: project._id }),
+        ActivityLog.deleteMany({ project: project._id }),
+        Team.updateMany({}, { $pull: { projects: project._id } }),
+        Notification.deleteMany({
+            $or: [
+                { entityType: 'project', entityId: project._id },
+                { 'metadata.projectId': project._id },
+            ],
+        }),
+    ]);
+
+    if (spaceIds.length > 0) {
+        await Promise.all([
+            SpaceContent.deleteMany({ space: { $in: spaceIds } }),
+            SpaceMember.deleteMany({ space: { $in: spaceIds } }),
+            SpaceComment.deleteMany({ space: { $in: spaceIds } }),
+            SpaceActivity.deleteMany({ space: { $in: spaceIds } }),
+            Space.deleteMany({ _id: { $in: spaceIds } }),
+        ]);
+    }
+
+    await project.deleteOne();
+    res.json({ message: 'Project deleted successfully' });
 });
 
 // @desc    Get project statistics for dashboard
@@ -235,6 +332,8 @@ module.exports = {
     createProject,
     getProjects,
     getProjectById,
+    updateProject,
+    deleteProject,
     getProjectStats,
     getWorkTypes
 };

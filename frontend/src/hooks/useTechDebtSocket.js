@@ -23,17 +23,14 @@ export const useTechDebtSocket = (options = {}) => {
     const connect = useCallback(() => {
         if (socketRef.current?.connected) return;
 
-        const serverUrl = import.meta.env.VITE_API_URL || 'https://localhost:5002';
+        const serverUrl = import.meta.env.VITE_API_URL || '/';
 
         socketRef.current = io(serverUrl, {
-            transports: ['websocket', 'polling'],
             withCredentials: true,
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
-            secure: true,
-            rejectUnauthorized: false
         });
 
         socketRef.current.on('connect', () => {

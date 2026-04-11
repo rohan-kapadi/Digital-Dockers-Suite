@@ -33,7 +33,7 @@ export const ChatProvider = ({ children }) => {
 
     useEffect(() => {
         if (user) {
-            const newSocket = io(import.meta.env.VITE_API_URL || 'https://localhost:5002', { withCredentials: true, secure: true, rejectUnauthorized: false });
+            const newSocket = io(import.meta.env.VITE_API_URL || '/', { withCredentials: true });
             // Use microtask to avoid synchronous setState in effect
             Promise.resolve().then(() => setSocket(newSocket));
 
@@ -68,7 +68,11 @@ export const ChatProvider = ({ children }) => {
                 setChannels(prev => prev.filter(c => c._id !== channelId));
             });
 
-            return () => newSocket.close();
+            return () => {
+                if (newSocket) {
+                    newSocket.disconnect();
+                }
+            };
         }
     }, [user]);
 

@@ -59,6 +59,11 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new Error('User already exists');
     }
 
+    if (role === 'admin') {
+        res.status(403);
+        throw new Error('Registration as admin is not allowed');
+    }
+
     // Create user
     const user = await User.create({
         fullName,

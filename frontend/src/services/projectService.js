@@ -23,7 +23,25 @@ const projectService = {
     getProjectById: async (projectId) => {
         const response = await api.get(`/projects/${projectId}`);
         return response.data;
-    }
+    },
+
+    // Update project (admin only)
+    updateProject: async (projectId, projectData) => {
+        const response = await api.put(`/projects/${projectId}`, projectData);
+        return response.data;
+    },
+
+    // Partial update project (admin only)
+    patchProject: async (projectId, projectData) => {
+        const response = await api.patch(`/projects/${projectId}`, projectData);
+        return response.data;
+    },
+
+    // Delete project (admin only)
+    deleteProject: async (projectId) => {
+        const response = await api.delete(`/projects/${projectId}`);
+        return response.data;
+    },
 };
 
 export default projectService;

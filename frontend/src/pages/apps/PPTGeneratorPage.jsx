@@ -7,7 +7,7 @@ const { Title, Text } = Typography;
 const { TextArea } = Input;
 
 // Backend API URL for PPT generation
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 const PPTGeneratorPage = () => {
     const [form] = Form.useForm();

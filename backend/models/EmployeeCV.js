@@ -86,6 +86,6 @@ const employeeCVSchema = mongoose.Schema({
 });
 
 // Multiple CVs per user are allowed (append-only history)
-employeeCVSchema.index({ user: 1 }, { unique: false });
+// Removed duplicate index call as index: true is specified in the schema definition above.
 
 module.exports = mongoose.model('EmployeeCV', employeeCVSchema);

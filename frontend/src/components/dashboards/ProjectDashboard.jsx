@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Row, Col, Card, Typography, Avatar, Progress, Tag, Spin, Empty, message, Modal, theme, Button, Select } from 'antd';
-import { RiseOutlined, FireOutlined, CheckCircleOutlined, ClockCircleOutlined, ArrowUpOutlined, ArrowDownOutlined, PlusOutlined, SettingOutlined, FilterOutlined } from '@ant-design/icons';
+import { Row, Col, Card, Typography, Avatar, Progress, Tag, Spin, Empty, message, Modal, theme, Button, Select, Dropdown, Form, Input } from 'antd';
+import { RiseOutlined, FireOutlined, CheckCircleOutlined, ClockCircleOutlined, ArrowUpOutlined, ArrowDownOutlined, PlusOutlined, SettingOutlined, FilterOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement } from 'chart.js';
 import { Doughnut, Line } from 'react-chartjs-2';
 import { useProject } from '../../context/ProjectContext';
 import projectStatsService from '../../services/projectStatsService';
 import searchService from '../../services/searchService';
+import projectService from '../../services/projectService';
+import userService from '../../services/userService';
 import ForYouSection from './ForYouSection';
 import UpcomingWorkCard from './UpcomingWorkCard';
 import StatusOverview from './StatusOverview';
 import TypesOfWorkCard from './TypesOfWorkCard';
 import SprintBurndownChart from '../charts/SprintBurndownChart';
 import SmartReassignmentDashboard from './SmartReassignmentDashboard';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import './dashboard.css';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement);
@@ -19,8 +23,11 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointE
 const { Title, Text } = Typography;
 
 const ProjectDashboard = () => {
-    const { currentProject, sprints, selectedSprintId, setSelectedSprintId, syncTrigger } = useProject();
+    const { currentProject, sprints, selectedSprintId, setSelectedSprintId, syncTrigger, refreshProjects, switchProject } = useProject();
+    const { user } = useAuth();
+    const navigate = useNavigate();
     const { token } = theme.useToken();
+    const isProjectAdmin = user?.role === 'admin';
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState(null);
     // New state for Jira-style features
@@ -28,11 +35,24 @@ const ProjectDashboard = () => {
     const [upcomingData, setUpcomingData] = useState(null);
     // Smart Reassignment modal state
     const [showReassignmentModal, setShowReassignmentModal] = useState(false);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [leadModalOpen, setLeadModalOpen] = useState(false);
+    const [actionLoading, setActionLoading] = useState(false);
+    const [usersLoading, setUsersLoading] = useState(false);
+    const [projectUsers, setProjectUsers] = useState([]);
+    const [editForm] = Form.useForm();
+    const [leadForm] = Form.useForm();
 
     useEffect(() => {
         if (currentProject?._id) {
             loadDashboardData(selectedSprintId);
+            return;
         }
+
+        setLoading(false);
+        setStats(null);
+        setForYouData(null);
+        setUpcomingData(null);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentProject, sprints, selectedSprintId, syncTrigger]);
 
@@ -67,6 +87,134 @@ const ProjectDashboard = () => {
             setLoading(false);
         }
     };
+
+    const fetchUsers = async () => {
+        setUsersLoading(true);
+        try {
+            const users = await userService.getUsers();
+            setProjectUsers(users || []);
+        } catch (error) {
+            console.error('Failed to load users:', error);
+            message.error('Failed to load users');
+        } finally {
+            setUsersLoading(false);
+        }
+    };
+
+    const openEditModal = () => {
+        if (!currentProject?._id) return;
+        editForm.setFieldsValue({
+            name: currentProject.name,
+            key: currentProject.key,
+            description: currentProject.description,
+            projectType: currentProject.projectType || 'scrum',
+        });
+        setEditModalOpen(true);
+    };
+
+    const handleUpdateProject = async (values) => {
+        if (!currentProject?._id) return;
+        setActionLoading(true);
+        try {
+            await projectService.updateProject(currentProject._id, {
+                name: values.name,
+                key: values.key?.toUpperCase(),
+                description: values.description,
+                projectType: values.projectType,
+            });
+            await refreshProjects();
+            await switchProject(currentProject._id);
+            await loadDashboardData(selectedSprintId);
+            message.success('Project updated');
+            setEditModalOpen(false);
+        } catch (error) {
+            message.error(error.response?.data?.message || 'Failed to update project');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const openLeadModal = async () => {
+        if (!isProjectAdmin) {
+            message.warning('Only admins can assign project lead');
+            return;
+        }
+
+        if (!projectUsers.length) {
+            await fetchUsers();
+        }
+
+        leadForm.setFieldsValue({ lead: currentProject?.lead?._id || undefined });
+        setLeadModalOpen(true);
+    };
+
+    const handleAssignLead = async (values) => {
+        if (!currentProject?._id) return;
+        setActionLoading(true);
+        try {
+            await projectService.patchProject(currentProject._id, {
+                lead: values.lead,
+            });
+            await refreshProjects();
+            await switchProject(currentProject._id);
+            await loadDashboardData(selectedSprintId);
+            message.success('Project lead updated');
+            setLeadModalOpen(false);
+        } catch (error) {
+            message.error(error.response?.data?.message || 'Failed to assign lead');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleDeleteProject = () => {
+        if (!currentProject?._id) return;
+
+        Modal.confirm({
+            title: 'Delete this project?',
+            icon: <ExclamationCircleOutlined />,
+            content: 'This will permanently remove project data, including tasks and sprints.',
+            okText: 'Delete',
+            okButtonProps: { danger: true },
+            cancelText: 'Cancel',
+            onOk: async () => {
+                try {
+                    await projectService.deleteProject(currentProject._id);
+                    const updatedProjects = await refreshProjects();
+
+                    if (updatedProjects?.length > 0) {
+                        await switchProject(updatedProjects[0]._id, updatedProjects);
+                        navigate('/dashboard');
+                    } else {
+                        navigate('/dashboard/projects');
+                    }
+
+                    message.success('Project deleted');
+                } catch (error) {
+                    message.error(error.response?.data?.message || 'Failed to delete project');
+                }
+            },
+        });
+    };
+
+    const projectSettingsItems = [
+        {
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: 'Edit Project',
+            onClick: openEditModal,
+        },
+        {
+            type: 'divider',
+        },
+        {
+            key: 'delete',
+            icon: <DeleteOutlined />,
+            label: 'Delete Project',
+            danger: true,
+            onClick: handleDeleteProject,
+        },
+    ];
 
     // Chart data configuration
     const statusChartData = stats ? {
@@ -153,6 +301,20 @@ const ProjectDashboard = () => {
         );
     }
 
+    if (!currentProject?._id) {
+        return (
+            <Card style={{ margin: 24 }}>
+                <Empty
+                    description={
+                        user?.role === 'admin'
+                            ? 'No project selected. Create a project to load the dashboard.'
+                            : 'No project available yet. Ask an admin to create a project.'
+                    }
+                />
+            </Card>
+        );
+    }
+
     return (
         <div className="dashboard-container">
             {/* Header */}
@@ -160,9 +322,21 @@ const ProjectDashboard = () => {
                 <div>
                     <Title level={2} style={{ marginTop: 0, marginBottom: 4 }}>Project Overview: {currentProject?.name || 'No Project Selected'}</Title>
                     <Typography.Text type="secondary" className="dashboard-project-meta">
-                        <span>Lead: {currentProject?.lead?.fullName ? currentProject.lead.fullName : (
-                            <>Unassigned <a href="#" onClick={(e) => e.preventDefault()} style={{ fontSize: '13px', marginLeft: 4, textDecoration: 'underline' }}>Assign</a></>
-                        )}</span>
+                        <span>
+                            Lead: {currentProject?.lead?.fullName || 'Unassigned'}
+                            {isProjectAdmin && (
+                                <a
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        openLeadModal();
+                                    }}
+                                    style={{ fontSize: '13px', marginLeft: 8, textDecoration: 'underline' }}
+                                >
+                                    {currentProject?.lead?.fullName ? 'Change' : 'Assign'}
+                                </a>
+                            )}
+                        </span>
                         <span style={{ margin: '0 8px' }}>•</span>
                         <span>Key: {currentProject?.key}</span>
                         <span style={{ margin: '0 8px' }}>•</span>
@@ -187,7 +361,13 @@ const ProjectDashboard = () => {
                             ))}
                         </Select>
                     </div>
-                    <Button icon={<SettingOutlined />}>Settings</Button>
+                    {isProjectAdmin ? (
+                        <Dropdown menu={{ items: projectSettingsItems }} trigger={['click']}>
+                            <Button icon={<SettingOutlined />}>Settings</Button>
+                        </Dropdown>
+                    ) : (
+                        <Button icon={<SettingOutlined />} onClick={() => navigate('/dashboard/settings')}>Settings</Button>
+                    )}
                     <Button type="primary" icon={<PlusOutlined />} onClick={() => message.info('Create task opened')}>Create Issue</Button>
                 </div>
             </div>
@@ -281,6 +461,72 @@ const ProjectDashboard = () => {
                     </div>
                 </Col>
             </Row>
+
+            <Modal
+                title="Edit Project"
+                open={editModalOpen}
+                onCancel={() => setEditModalOpen(false)}
+                footer={null}
+                destroyOnHidden
+            >
+                <Form form={editForm} layout="vertical" onFinish={handleUpdateProject}>
+                    <Form.Item name="name" label="Project Name" rules={[{ required: true, message: 'Please enter a project name' }]}>
+                        <Input placeholder="Project name" />
+                    </Form.Item>
+                    <Form.Item
+                        name="key"
+                        label="Project Key"
+                        rules={[
+                            { required: true, message: 'Please enter a project key' },
+                            { pattern: /^[A-Z]{2,10}$/, message: 'Must be 2-10 uppercase letters only' },
+                        ]}
+                    >
+                        <Input maxLength={10} style={{ textTransform: 'uppercase' }} placeholder="PROJECTKEY" />
+                    </Form.Item>
+                    <Form.Item name="description" label="Description">
+                        <Input.TextArea rows={3} placeholder="Describe this project" />
+                    </Form.Item>
+                    <Form.Item name="projectType" label="Project Type">
+                        <Select>
+                            <Select.Option value="scrum">Scrum</Select.Option>
+                            <Select.Option value="kanban">Kanban</Select.Option>
+                            <Select.Option value="business">Business</Select.Option>
+                        </Select>
+                    </Form.Item>
+                    <Form.Item style={{ marginBottom: 0 }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                            <Button onClick={() => setEditModalOpen(false)}>Cancel</Button>
+                            <Button type="primary" htmlType="submit" loading={actionLoading}>Save</Button>
+                        </div>
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            <Modal
+                title="Assign Project Lead"
+                open={leadModalOpen}
+                onCancel={() => setLeadModalOpen(false)}
+                footer={null}
+                destroyOnHidden
+            >
+                <Form form={leadForm} layout="vertical" onFinish={handleAssignLead}>
+                    <Form.Item name="lead" label="Lead" rules={[{ required: true, message: 'Please select a lead' }]}>
+                        <Select
+                            placeholder="Select project lead"
+                            loading={usersLoading}
+                            showSearch
+                            optionFilterProp="label"
+                            options={projectUsers.map((u) => ({ value: u._id, label: `${u.fullName} (${u.role})` }))}
+                        />
+                    </Form.Item>
+                    <Form.Item style={{ marginBottom: 0 }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                            <Button onClick={() => setLeadModalOpen(false)}>Cancel</Button>
+                            <Button type="primary" htmlType="submit" loading={actionLoading}>Save</Button>
+                        </div>
+                    </Form.Item>
+                </Form>
+            </Modal>
 
             <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
                 {/* Main Content: Charts & Activity */}
